@@ -3,9 +3,9 @@
 <package format="3">
   <name>turtle_control</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Turtle teleop</description>
   <maintainer email="piotr.szmurlo7@gmail.com">piotr</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Free</license>
 
   <depend>rclpy</depend>
 

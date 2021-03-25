@@ -1,0 +1,7 @@
+turtle_key_control_node:
+  ros__parameters:
+    down_key: s
+    left_key: a
+    right_key: d
+    up_key: k
+    use_sim_time: false
