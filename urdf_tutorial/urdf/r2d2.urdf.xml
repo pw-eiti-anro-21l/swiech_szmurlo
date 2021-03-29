@@ -10,7 +10,7 @@
   <visual>
     <origin xyz="0 0 0" rpy="1.57 0 0" />
     <geometry>
-      <cylinder radius="0.01" length=".5" />
+      <cylinder radius="0.01" length="0.5" />
     </geometry>
     <material name="gray">
       <color rgba=".2 .2 .2 1" />
@@ -36,9 +36,9 @@
   <visual>
     <origin xyz="0 0 -.3" />
     <geometry>
-      <box size=".20 .10 .8" />
+      <box size="0.20 0.10 0.8" />
     </geometry>
-    <material name="white">
+    <material name="green">
       <color rgba="1 1 1 1"/>
     </material>
   </visual>
@@ -131,7 +131,7 @@
 
   <visual>
     <geometry>
-      <sphere radius=".4" />
+      <sphere radius="0.2" />
     </geometry>
     <material name="white" />
   </visual>
@@ -147,7 +147,8 @@
 
 <joint name="swivel" type="continuous">
   <origin xyz="0 0 0.1" />
-  <axis xyz="0 0 1" />
+  <axis xyz="0 1 0" />
+  <limit upper="0" lower="-.5" effort="10" velocity="100" />
   <parent link="body"/>
   <child link="head"/>
 </joint>

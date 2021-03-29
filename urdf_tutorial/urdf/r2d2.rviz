@@ -30,7 +30,7 @@ Visualization Manager:
     - Alpha: 0.5
       Cell Size: 1
       Class: rviz_default_plugins/Grid
-      Color: 160; 160; 164
+      Color: 255; 255; 0
       Enabled: true
       Line Style:
         Line Width: 0.029999999329447746
