@@ -1,4 +1,26 @@
-- params:
-  - roll: -0.3766985309403237
-  - pitch: -0.9260130378556473
-  - yaw: -2.412104230426113
+- link:
+  - interial:
+    - interia: lala
+      origin: lala
+      properties:
+        coordinate:
+          properties:
+          - format:
+            - type: string
+              xml:
+                attribute: 'true'
+          type: string
+      type: object
+      xml:
+        name: mass
+  - visual:
+    - origin
+    - geometry:
+      - cylinder
+    - material:
+      - color
+  - collision:
+    - origin
+    - geometry:
+      - cylinder
+    - contact_coefficients
