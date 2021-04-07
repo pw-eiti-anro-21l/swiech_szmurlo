@@ -2,10 +2,11 @@ import json
 import transformations
 import pprint
 
-with open("dh_params.json", "r") as file:
-        dh_params = json.load(file)
+def get_xyz_rpy():
+    with open("/Users/maciekswiech/Desktop/ANRO/swiech_szmurlo/urdf_tutorial/urdf/dh_params.json", "r") as file:
+            dh_params = json.load(file)
 
-with open('urdf.yaml', 'w') as file:
+    # with open('urdf.yaml', 'w') as file:
     rpy_xyz={}
     inter = 1
     for i in dh_params:
@@ -17,6 +18,9 @@ with open('urdf.yaml', 'w') as file:
         trans_matrix = a_translation @ alpha_rotation @ d_translation @ theta_rotation
         rpy = transformations.euler_from_matrix(trans_matrix)
         xyz = transformations.translation_from_matrix(trans_matrix)
+        print (f'{xyz} \n')
         rpy_xyz['i'+ str(inter)] = (rpy, tuple(xyz))
         inter+=1
-    pprint.pprint(rpy_xyz)
+        pprint.pprint(rpy_xyz)
+        
+get_xyz_rpy()

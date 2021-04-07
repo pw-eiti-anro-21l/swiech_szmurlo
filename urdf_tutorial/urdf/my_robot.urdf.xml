@@ -1,90 +1,143 @@
 <robot>
-  <joint name="tilt" type="prismatic">
-    <parent link="axis"/>
-    <child link="body"/>
-    <origin xyz="0 0 0" rpy="0.0, 0.0, 0.0"/>
-    <axis xyz="0 1 0"/>
-    <limit upper="0" lower="-0.5" effort="10" velocity="10"/>
-  </joint>
-  <link name="axis">
+  <link name="base">
     <inertial>
-      <mass value="1"/>
-      <interia ixx="100" ixy="0" ixz="0" iyy="100" iyz="0" izz="0"/>
+      <mass value="10"/>
+      <interia ixx="100" ixy="0" ixz="0" iyy="100" iyz="0" izz="100"/>
       <origin/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="0.0, 0.0, 0.0"/>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.01" length="0.5"/>
+        <cylinder radius="0.01" length="1"/>
       </geometry>
-      <material name="grey">
-        <color rgba="0.2 0.2 0.2 1"/>
+      <material name="blue">
+        <color rgba="1 0.5 0 1"/>
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0.0, 0.0, 0.0"/>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.01" length="0.5"/>
+        <cylinder radius="0.01" length="1"/>
       </geometry>
       <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
     </collision>
   </link>
-  <joint name="tilt" type="prismatic">
-    <parent link="axis"/>
-    <child link="body"/>
-    <origin xyz="0 0 0" rpy="1.57, 0.0, 1.57"/>
+  <joint name="joint_base_1" type="prismatic">
+    <parent link="base"/>
+    <child link="1"/>
+    <origin xyz="0.0 0.0 2.0" rpy="0.0 -0.0 0.0"/>
     <axis xyz="0 1 0"/>
     <limit upper="0" lower="-0.5" effort="10" velocity="10"/>
   </joint>
-  <link name="axis">
+  <link name="link_1">
     <inertial>
-      <mass value="1"/>
-      <interia ixx="100" ixy="0" ixz="0" iyy="100" iyz="0" izz="0"/>
+      <mass value="10"/>
+      <interia ixx="100" ixy="0" ixz="0" iyy="100" iyz="0" izz="100"/>
       <origin/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="1.57, 0.0, 1.57"/>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.01" length="0.5"/>
+        <cylinder radius="0.01" length="1"/>
       </geometry>
-      <material name="grey">
-        <color rgba="0.2 0.2 0.2 1"/>
+      <material name="red">
+        <color rgba="1 0.5 0 1"/>
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="1.57, 0.0, 1.57"/>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.01" length="0.5"/>
+        <cylinder radius="0.01" length="1"/>
       </geometry>
       <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
     </collision>
   </link>
-  <joint name="tilt" type="prismatic">
-    <parent link="axis"/>
-    <child link="body"/>
-    <origin xyz="0 0 0" rpy="1.57, 0.0, 1.57"/>
+  <joint name="joint_base_1" type="prismatic">
+    <parent link="base"/>
+    <child link="1"/>
+    <origin xyz="0.0 -0.9999996829318346 1.0007963267107332" rpy="0.7853980048633405 -1.5696701507009851 0.7853980048633405"/>
     <axis xyz="0 1 0"/>
     <limit upper="0" lower="-0.5" effort="10" velocity="10"/>
   </joint>
-  <link name="axis">
+  <link name="link_1">
     <inertial>
-      <mass value="1"/>
-      <interia ixx="100" ixy="0" ixz="0" iyy="100" iyz="0" izz="0"/>
+      <mass value="10"/>
+      <interia ixx="100" ixy="0" ixz="0" iyy="100" iyz="0" izz="100"/>
       <origin/>
     </inertial>
     <visual>
-      <origin xyz="0 0 0" rpy="1.57, 0.0, 1.57"/>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.01" length="0.5"/>
+        <cylinder radius="0.01" length="1"/>
       </geometry>
-      <material name="grey">
-        <color rgba="0.2 0.2 0.2 1"/>
+      <material name="red">
+        <color rgba="1 0.5 0 1"/>
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="1.57, 0.0, 1.57"/>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
       <geometry>
-        <cylinder radius="0.01" length="0.5"/>
+        <cylinder radius="0.01" length="1"/>
+      </geometry>
+      <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
+    </collision>
+  </link>
+  <joint name="joint_base_1" type="prismatic">
+    <parent link="base"/>
+    <child link="1"/>
+    <origin xyz="0.0 -0.9999996829318346 1.0007963267107332" rpy="0.7853980048633405 -1.5696701507009851 0.7853980048633405"/>
+    <axis xyz="0 1 0"/>
+    <limit upper="0" lower="-0.5" effort="10" velocity="10"/>
+  </joint>
+  <link name="link_1">
+    <inertial>
+      <mass value="10"/>
+      <interia ixx="100" ixy="0" ixz="0" iyy="100" iyz="0" izz="100"/>
+      <origin/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.01" length="1"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1 0.5 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.01" length="1"/>
+      </geometry>
+      <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
+    </collision>
+  </link>
+  <joint name="joint_3_tool" type="prismatic">
+    <parent link="3"/>
+    <child link="tool"/>
+    <origin xyz="0.0 -0.9999996829318346 1.0007963267107332" rpy="0.7853980048633405 -1.5696701507009851 0.7853980048633405"/>
+    <axis xyz="0 1 0"/>
+    <limit upper="0" lower="-0.5" effort="10" velocity="10"/>
+  </joint>
+  <link name="tool">
+    <inertial>
+      <mass value="10"/>
+      <interia ixx="100" ixy="0" ixz="0" iyy="100" iyz="0" izz="100"/>
+      <origin/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.01" length="1"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="1 0.5 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.5" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.01" length="1"/>
       </geometry>
       <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
     </collision>

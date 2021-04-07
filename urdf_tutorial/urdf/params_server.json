@@ -1,9 +1,8 @@
-[
     {
-    "link_1": 
+    "base": 
         {
-            "link_name": "link_1_name",
-            "mass": 10,
+            "link_name": "base",
+            "mass": "10",
             "inertia": {
                 "ixx": "100",
                 "ixy": "0",
@@ -12,26 +11,137 @@
                 "iyz": "0",
                 "izz": "100"
             },
-            "xyz": 0,
             "radius": "0.01",
-            "length": "0.5",
-            "material_name": "gray",
-            "color": ".2 .2 .2 1",
+            "material_name": "blue",
+            "color": "1 0.5 0 1",
             "mu": "0",
             "kp": "1000.0",
             "kd": "1.0"
         },
+    "link_1": 
+        {
+        "link_name": "link_1",
+        "mass": "10",
+        "inertia": {
+            "ixx": "100",
+            "ixy": "0",
+            "ixz": "0",
+            "iyy": "100",
+            "iyz": "0",
+            "izz": "100"
+        },
+        "radius": "0.01",
+        "material_name": "red",
+        "color": "1 0.5 0 1",
+        "mu": "0",
+        "kp": "1000.0",
+        "kd": "1.0"
+    },
+    "link_2": 
+        {
+        "link_name": "link_2",
+        "mass": "10",
+        "inertia": {
+            "ixx": "100",
+            "ixy": "0",
+            "ixz": "0",
+            "iyy": "100",
+            "iyz": "0",
+            "izz": "100"
+        },
+        "radius": "0.01",
+        "material_name": "green",
+        "color": "1 0.5 0 1",
+        "mu": "0",
+        "kp": "1000.0",
+        "kd": "1.0"
+    },
+    "link_3": 
+        {
+        "link_name": "link_3",
+        "mass": "10",
+        "inertia": {
+            "ixx": "100",
+            "ixy": "0",
+            "ixz": "0",
+            "iyy": "100",
+            "iyz": "0",
+            "izz": "100"
+        },
+        "radius": "0.01",
+        "material_name": "red",
+        "color": "1 0.5 0 1",
+        "mu": "0",
+        "kp": "1000.0",
+        "kd": "1.0"
+    },
+    "tool": 
+        {
+        "link_name": "tool",
+        "mass": "10",
+        "inertia": {
+            "ixx": "100",
+            "ixy": "0",
+            "ixz": "0",
+            "iyy": "100",
+            "iyz": "0",
+            "izz": "100"
+        },
+        "radius": "0.01",
+        "material_name": "blue",
+        "color": "1 0.5 0 1",
+        "mu": "0",
+        "kp": "1000.0",
+        "kd": "1.0"
+    },
 
     "joint_1":
-        {
-            "joint_name": "joint_1_name",
-            "joint_type": "revolute",
-            "origin_xyz": "0 1 0",
-            "axis_xyz": "0 1 0",
-            "upper_limit": "0",
-            "lower_limit": "-0.5",
-            "effort": "10",
-            "velocity": "10"
-        }
+    {
+        "joint_name": "joint_base_1",
+        "joint_type": "prismatic",
+        "child": "1",
+        "parent": "base",
+        "axis_xyz": "0 1 0",
+        "upper_limit": "0",
+        "lower_limit": "-0.5",
+        "effort": "10",
+        "velocity": "10"
+    },
+
+    "joint_2":
+    {
+        "joint_name": "joint_1_2",
+        "joint_type": "prismatic",
+        "child": "2",
+        "parent": "1",
+        "axis_xyz": "0 1 0",
+        "upper_limit": "0",
+        "lower_limit": "-0.5",
+        "effort": "10",
+        "velocity": "10"
+    },
+    "joint_3":
+    {
+        "joint_name": "joint_2_3",
+        "joint_type": "prismatic",
+        "child": "3",
+        "parent": "2",
+        "axis_xyz": "0 1 0",
+        "upper_limit": "0",
+        "lower_limit": "-0.5",
+        "effort": "10",
+        "velocity": "10"
+    },
+    "joint_tool":
+    {
+        "joint_name": "joint_3_tool",
+        "joint_type": "prismatic",
+        "child": "tool",
+        "parent": "3",
+        "axis_xyz": "0 1 0",
+        "upper_limit": "0",
+        "lower_limit": "-0.5",
+        "effort": "10",
+        "velocity": "10"
     }
-]
+}

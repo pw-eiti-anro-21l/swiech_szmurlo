@@ -6,78 +6,69 @@ from math import cos, sin, atan, atan2, sqrt
 from xml.dom import minidom
 import xml
 from lxml import etree as ET
+import json
+import transformations
+import pprint
 
-def prettify(elem):
-    rough_string = ET.tostring(elem, 'utf-8')
-    reparsed = minidom.parseString(rough_string)
-    return reparsed.toprettyxml(indent="  ")
-
-def create_homogen(alpha, a, d, theta):
-    homogen_matrix = [
-    [cos(theta), -1*sin(theta)*cos(alpha), sin(theta)*sin(alpha), a*cos(theta)],
-    [sin(theta), cos(theta)*cos(alpha), -1*cos(theta)*sin(alpha), a*sin(theta)],
-    [0, sin(alpha), cos(alpha), a],
-    [0, 0, 0, 1]]
-    return homogen_matrix
+def get_parameters(part):
+    with open("/Users/maciekswiech/Desktop/ANRO/swiech_szmurlo/urdf_tutorial/urdf/params_server.json", "r") as read_file:
+        data = json.load(read_file)
+    part_parameters = data[part]
+    return part_parameters
 
 
-def multiply_matrix(matrix_1, matrix_2):
+def get_xyz_rpy():
+    with open("/Users/maciekswiech/Desktop/ANRO/swiech_szmurlo/urdf_tutorial/urdf/dh_params.json", "r") as file:
+        dh_params = json.load(file)
+    rpy_xyz={}
+    inter = 1
+    iterator = 1
 
-    column_index = 0
-    row_index = 0
-    current_element = 0
-    num_of_columns = len(matrix_2[0])
-    num_of_rows = len(matrix_1)
-    
-    new_matrix = [[0]*num_of_columns for i in range (num_of_rows)]
+    xyz_array = []
+    rpy_array = []
+    params_array = []
 
-    for r in range (0, num_of_rows):
-        for c in range (0, num_of_columns):
-            current_sum = 0
-            for i in range (0, len(matrix_1[r])):
-                current_sum += matrix_1[r][i]*matrix_2[i][c]
-            new_matrix [r][c] = current_sum
-    return new_matrix
+    for i in dh_params:
+        dh_row = json.loads(json.dumps(i))
+        a_translation = transformations.translation_matrix((dh_row["a"],0,0))
+        d_translation = transformations.translation_matrix((0,0,dh_row["d"]))
+        alpha_rotation = transformations.rotation_matrix(dh_row["alpha"],(1, 0, 0))
+        theta_rotation = transformations.rotation_matrix(dh_row["theta"],(0, 0, 1))
+        trans_matrix = a_translation @ alpha_rotation @ d_translation @ theta_rotation
+        rpy = transformations.euler_from_matrix(trans_matrix)
+        xyz = transformations.translation_from_matrix(trans_matrix)
 
+        params_array.append({'xyz': xyz, 'rpy': rpy, 'd': dh_row['d']})
+        xyz_array.append(xyz)
+        rpy_array.append(rpy)
 
-def create_rotation_matrix(matrix):
-    rotation_matrix = [[0]*3 for i in range (3)]
-    for r in range (0, 3):
-        for c in range(0, 3):
-            rotation_matrix[r][c] = matrix[r][c]
-    return rotation_matrix
-
-
-def roll_pitch_yaw_params(rotation_matrix):
-    phi_2 = atan2(rotation_matrix[2][1], rotation_matrix[2][2])
-    psi_2 = atan2(rotation_matrix[1][0], rotation_matrix[0][0])
-    theta_2 = atan2(-1*rotation_matrix[2][0], (sqrt((rotation_matrix[2][1])**2 + (rotation_matrix[2][2])**2)))
-
-    roll = phi_2
-    pitch = theta_2
-    yaw = psi_2
-
-    return roll, pitch, yaw
+    return params_array
 
 
-def create_xml_link(r, p, y):
-    link_name = "axis"
-    mass_value = '1'
-    ixx = '100'
-    ixy = '0'
-    ixz = '0'
-    iyy = '100'
-    iyz = '0'
-    izz = '0'
-    xyz = "0 0 0"
-    rpy = f'{r}, {p}, {y}'
-    radius = "0.01"
-    length = "0.5"
-    material_name = "grey"
-    color_rgba = "0.2 0.2 0.2 1"
-    mu = "0"
-    kp="1000.0"
-    kd="1.0"
+
+def create_xml_link(roll, pitch, yaw, x, y, z, length, name):
+
+    parameters = get_parameters(name)
+
+    z_translation = str(float(-0.5*length))
+    length = str(length)
+
+    link_name = parameters['link_name']
+    mass_value = parameters['mass']
+    ixx = parameters['inertia']['ixx']
+    ixy = parameters['inertia']['ixy']
+    ixz = parameters['inertia']['ixz']
+    iyy = parameters['inertia']['iyy']
+    iyz = parameters['inertia']['iyz']
+    izz = parameters['inertia']['izz']
+    xyz = f'{0} {0} {z_translation}'
+    rpy = f'{0} {0} {0}'
+    radius = parameters['radius']
+    material_name = parameters['material_name']
+    color_rgba = parameters['color']
+    mu = parameters['mu']
+    kp = parameters['kp']
+    kd = parameters['kd']
 
 
     link = ET.Element('link', name = link_name)
@@ -101,18 +92,21 @@ def create_xml_link(r, p, y):
    
     return link
 
-def create_xml_joint(r, p, y):
-    joint_name = "tilt"
-    joint_type = "prismatic"
-    parent_link = "axis"
-    child_link = "body"
-    origin_xyz = "0 0 0"
-    origin_rpy = f'{r}, {p}, {y}'
-    axis_xyz = "0 1 0"
-    upper_limit = "0"
-    lower_limit = "-0.5"
-    effort_limit = "10"
-    velocity_limit = "10"
+def create_xml_joint(roll, pitch, yaw, x, y, z, name):
+
+    parameters = get_parameters(name)
+
+    joint_name = parameters['joint_name']
+    joint_type = parameters['joint_type']
+    parent_link = parameters['parent']
+    child_link = parameters['child']
+    origin_xyz = f'{x} {y} {z}'
+    origin_rpy = f'{roll} {pitch} {yaw}'
+    axis_xyz = parameters['axis_xyz']
+    upper_limit = parameters['upper_limit']
+    lower_limit = parameters['lower_limit']
+    effort_limit = parameters['effort']
+    velocity_limit = parameters['velocity']
 
     joint = ET.Element('joint', name = joint_name, type = joint_type)
     parent = ET.SubElement(joint, 'parent', link = parent_link)
@@ -125,45 +119,44 @@ def create_xml_joint(r, p, y):
 
 
 if __name__ == "__main__":
-    table_of_homogen_matrixes = []
-    with open("/Users/maciekswiech/Desktop/ANRO/swiech_szmurlo/urdf_tutorial/urdf/dh_params.json", "r") as file:
-        params_table = json.load(file)
 
-    for single_table in params_table:
-        alpha = single_table['alpha']
-        a = single_table['a']
-        d = single_table['d']
-        theta = single_table['theta']
-        homogen_matrix = create_homogen(alpha, a, d, theta)
-        table_of_homogen_matrixes.append(homogen_matrix)
-
-
-    columns = 4 
-    rows = columns
-    temporary_matrix = table_of_homogen_matrixes[len(table_of_homogen_matrixes)-1]
-
-    array_of_rpy_params = []
-    for matrix in table_of_homogen_matrixes:
-        rpy_params = roll_pitch_yaw_params(matrix)
-        array_of_rpy_params.append(rpy_params)
-
-    array_of_links_urdfs = []
-    array_of_joints_urdfs = []
+    params_array = get_xyz_rpy()
     array_of_urdfs = []
-    
-    for element in array_of_rpy_params:
-        roll = element[0]
-        pitch = element[1]
-        yaw = element[2]
-        joint_urdf = create_xml_joint(roll, pitch, yaw)
-        link_urdf = create_xml_link(roll, pitch, yaw)
-        array_of_joints_urdfs.append(joint_urdf)
-        array_of_links_urdfs.append(link_urdf)
+
+    joint_iterator = 1
+
+    for params in params_array:
+        rpy = params['rpy']
+        xyz = params['xyz']
+        d_translation = params['d']
+        roll = rpy[0]
+        pitch = rpy[1]
+        yaw = rpy[2]
+        x = xyz[0]
+        y = xyz[1]
+
+        if joint_iterator == 1:
+            z = xyz[2]+1 # podwyzszenie bazy
+        else:
+            z = xyz[2]
+        d = d_translation
+
+        joint_name_in_server = f'joint_{joint_iterator}'
+        link_name_in_server = f'link_{joint_iterator}'
+
+        joint_urdf = create_xml_joint(roll, pitch, yaw, x, y ,z, joint_name_in_server)
+        link_urdf = create_xml_link(roll, pitch, yaw, x, y, z, d_translation, link_name_in_server)
         array_of_urdfs.append(joint_urdf)
         array_of_urdfs.append(link_urdf)
 
-        print (f'Roll: {roll}, Pitch: {pitch}, Yaw: {yaw} \n')
+        # print (f'Roll: {roll}, Pitch: {pitch}, Yaw: {yaw} \n')
+    base_urdf = create_xml_link(roll, pitch, yaw, x, y, z, 1, "base")
+    tool_urdf = create_xml_link(roll, pitch, yaw, x, y, z, 1, "tool")
+    body_tool_joint_urdf = create_xml_joint(roll, pitch, yaw, x, y, z, "joint_tool")
 
     tree = ET.Element("robot")
+    tree.extend([base_urdf])
     tree.extend(array_of_urdfs)
+    tree.extend([body_tool_joint_urdf])
+    tree.extend([tool_urdf])
     ET.ElementTree(tree).write('/Users/maciekswiech/Desktop/ANRO/swiech_szmurlo/urdf_tutorial/urdf/my_robot.urdf.xml', pretty_print=True)
