@@ -3,7 +3,14 @@ import yaml
 import math
 from math import cos, sin, atan, atan2, sqrt
 # import xml.etree.ElementTree as ET
+from xml.dom import minidom
+import xml
 from lxml import etree as ET
+
+def prettify(elem):
+    rough_string = ET.tostring(elem, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    return reparsed.toprettyxml(indent="  ")
 
 def create_homogen(alpha, a, d, theta):
     homogen_matrix = [
@@ -63,7 +70,7 @@ def create_xml_link(r, p, y):
     iyz = '0'
     izz = '0'
     xyz = "0 0 0"
-    rpy = "1.57 0 0"
+    rpy = f'{r}, {p}, {y}'
     radius = "0.01"
     length = "0.5"
     material_name = "grey"
@@ -91,18 +98,16 @@ def create_xml_link(r, p, y):
     geometry_collision = ET.SubElement(collision, "geometry")
     cylinder_collision = ET.SubElement(geometry_collision, "cylinder", radius = radius, length = length)
     contact_coefficients_collision = ET.SubElement(collision, "contact_coefficients", mu = mu, kp = kp, kd = kd)
+   
+    return link
 
-    tree = ET.ElementTree(link)
-    tree.write('output.xml', pretty_print=True)
-    return
-
-def create_xml_joint():
+def create_xml_joint(r, p, y):
     joint_name = "tilt"
-    joint_type = "revolute"
+    joint_type = "prismatic"
     parent_link = "axis"
     child_link = "body"
     origin_xyz = "0 0 0"
-    origin_rpy = "1.57 0 0"
+    origin_rpy = f'{r}, {p}, {y}'
     axis_xyz = "0 1 0"
     upper_limit = "0"
     lower_limit = "-0.5"
@@ -115,9 +120,8 @@ def create_xml_joint():
     origin = ET.SubElement(joint, 'origin', xyz = origin_xyz, rpy = origin_rpy)
     axis = ET.SubElement(joint, 'axis', xyz = axis_xyz)
     limit = ET.SubElement(joint, 'limit', upper = upper_limit, lower = lower_limit, effort = effort_limit, velocity = velocity_limit)
-    tree = ET.ElementTree(joint)
-    tree.write('output_joint.xml', pretty_print=True)
-    return
+    
+    return joint
 
 
 if __name__ == "__main__":
@@ -142,26 +146,24 @@ if __name__ == "__main__":
     for matrix in table_of_homogen_matrixes:
         rpy_params = roll_pitch_yaw_params(matrix)
         array_of_rpy_params.append(rpy_params)
+
+    array_of_links_urdfs = []
+    array_of_joints_urdfs = []
+    array_of_urdfs = []
     
     for element in array_of_rpy_params:
-        print(element)
+        roll = element[0]
+        pitch = element[1]
+        yaw = element[2]
+        joint_urdf = create_xml_joint(roll, pitch, yaw)
+        link_urdf = create_xml_link(roll, pitch, yaw)
+        array_of_joints_urdfs.append(joint_urdf)
+        array_of_links_urdfs.append(link_urdf)
+        array_of_urdfs.append(joint_urdf)
+        array_of_urdfs.append(link_urdf)
 
+        print (f'Roll: {roll}, Pitch: {pitch}, Yaw: {yaw} \n')
 
-
-    for i in range (3, 1, -1):
-        temporary_matrix = multiply_matrix(temporary_matrix, table_of_homogen_matrixes[i-2]) 
-    
-    homogen_0_n_matrix = temporary_matrix
-    rotation_matrix = create_rotation_matrix(homogen_0_n_matrix)
-
-    (roll, pitch, yaw) = roll_pitch_yaw_params(rotation_matrix)
-    create_xml_link(roll, pitch, yaw)
-    create_xml_joint()
-
-    # print(f'Roll: {roll}, Pitch: {pitch}, Yaw: {yaw}')
-
-    # yaml_dict = create_yaml_dict(roll, pitch, yaw)
-
-    # with open ("/Users/maciekswiech/Desktop/ANRO/swiech_szmurlo/urdf_tutorial/urdf/rpy.yaml", "w") as yaml_file:
-
-    #     rpy_params = yaml.dump(yaml_dict, yaml_file)
+    tree = ET.Element("robot")
+    tree.extend(array_of_urdfs)
+    ET.ElementTree(tree).write('/Users/maciekswiech/Desktop/ANRO/swiech_szmurlo/urdf_tutorial/urdf/my_robot.urdf.xml', pretty_print=True)
