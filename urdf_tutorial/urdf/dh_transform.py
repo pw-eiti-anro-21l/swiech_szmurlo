@@ -148,6 +148,7 @@ if __name__ == "__main__":
         link_urdf = create_xml_link(roll, pitch, yaw, x, y, z, d_translation, link_name_in_server)
         array_of_urdfs.append(joint_urdf)
         array_of_urdfs.append(link_urdf)
+        joint_iterator += 1
 
         # print (f'Roll: {roll}, Pitch: {pitch}, Yaw: {yaw} \n')
     base_urdf = create_xml_link(roll, pitch, yaw, x, y, z, 1, "base")
