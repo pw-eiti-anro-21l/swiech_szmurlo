@@ -1,7 +1,0 @@
-<joint name="tilt" type="revolute">
-  <parent link="axis"/>
-  <child link="body"/>
-  <origin xyz="0 0 0" rpy="1.57 0 0"/>
-  <axis xyz="0 1 0"/>
-  <limit upper="0" lower="-0.5" effort="10" velocity="10"/>
-</joint>
