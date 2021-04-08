@@ -9,13 +9,6 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
-    urdf_file_name = 'my_robot.urdf.xml'
-    urdf = os.path.join(
-        get_package_share_directory('zadanie2'),
-        urdf_file_name)
-    with open(urdf, 'r') as infp:
-        robot_desc = infp.read()
-
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',

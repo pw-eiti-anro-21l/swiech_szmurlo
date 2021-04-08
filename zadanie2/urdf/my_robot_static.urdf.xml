@@ -17,7 +17,7 @@
       <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
     </collision>
   </link>
-  <joint name="joint_base_1" type="prismatic">
+  <joint name="joint_base_1" type="fixed">
     <parent link="base_link"/>
     <child link="link_1"/>
     <origin xyz="0.0 0.0 2.0" rpy="0.0 -0.0 0.0"/>
@@ -42,7 +42,7 @@
       <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
     </collision>
   </link>
-  <joint name="joint_1_2" type="prismatic">
+  <joint name="joint_1_2" type="fixed">
     <parent link="link_1"/>
     <child link="link_2"/>
     <origin xyz="0.0 -0.9999996829318346 0.0007963267107332633" rpy="0.7853980048633404 -1.5696701507009851 0.7853980048633404"/>
@@ -67,7 +67,7 @@
       <contact_coefficients mu="0" kp="1000.0" kd="1.0"/>
     </collision>
   </link>
-  <joint name="joint_2_3" type="prismatic">
+  <joint name="joint_2_3" type="fixed">
     <parent link="link_2"/>
     <child link="link_3"/>
     <origin xyz="0.0 -0.9999996829318346 0.0007963267107332633" rpy="0.7853980048633404 -1.5696701507009851 0.7853980048633404"/>
