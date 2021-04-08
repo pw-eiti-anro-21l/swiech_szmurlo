@@ -26,7 +26,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'state_publisher = lab2_manipulator.state_publisher:main'
+        'state_publisher = zadanie2.state_publisher:main'
         ],
     },
 )
