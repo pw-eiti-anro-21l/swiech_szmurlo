@@ -27,7 +27,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'state_publisher = zadanie3.state_publisher:main'
+        'state_publisher = zadanie3.state_publisher:main',
+        'kdl_dkin = zadanie3.KDL_DKIN:main'
         ],
     },
 )

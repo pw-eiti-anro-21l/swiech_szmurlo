@@ -17,12 +17,13 @@ class KDL_DKIN(Node):
         self.i = 0
         self.chain = self.build_chain()
         
+        
     def listener_callback(self, msg):
         pose = self.solve_forward_kinematics(self.chain, msg, 0.2)
         self.publisher_.publish(pose)
 
     def get_xyz_rpy(self):
-        with open("dh_params.json", "r") as file:
+        with open("~/anro1_ws/src/swiech_szmurlo/zadanie3/zadanie3/dh_params.json", "r") as file:
             dh_params = json.load(file)
         xyz_array = []
         rpy_array = []
@@ -74,12 +75,15 @@ class KDL_DKIN(Node):
         joint_states[2] = msg.position[2]
         fk_solver.JntToCart(joint_states, result_frame)
         frame_quaternion = result_frame.M.GetQuaternion()
-        tool_position = result_frame.p# + tool_length
+        tool_position = result_frame.p + kdl.Vector(0,0,tool_length)
         pose.pose.position.x = tool_position[0]
         pose.pose.position.y = tool_position[1]
         pose.pose.position.z = tool_position[2]
-        pose.pose.orientation = kdl.Quaternion(frame_quaternion)
-        print(type(frame_quaternion[1]))
+        pose.pose.orientation.x = frame_quaternion[0]
+        pose.pose.orientation.y = frame_quaternion[1]
+        pose.pose.orientation.z = frame_quaternion[2]
+        pose.pose.orientation.w = frame_quaternion[3]
+        print(pose.pose.orientation.x)
         return pose
 
 def main(args=None):
