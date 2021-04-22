@@ -74,11 +74,12 @@ class KDL_DKIN(Node):
         joint_states[2] = msg.position[2]
         fk_solver.JntToCart(joint_states, result_frame)
         frame_quaternion = result_frame.M.GetQuaternion()
-        tool_position = result_frame.p + tool_length
+        tool_position = result_frame.p# + tool_length
         pose.pose.position.x = tool_position[0]
         pose.pose.position.y = tool_position[1]
         pose.pose.position.z = tool_position[2]
-        pose.pose.orientation = frame_quaternion
+        pose.pose.orientation = kdl.Quaternion(frame_quaternion)
+        print(type(frame_quaternion[1]))
         return pose
 
 def main(args=None):
@@ -86,7 +87,6 @@ def main(args=None):
     rclpy.init(args=args)
 
     kdl_fk = KDL_DKIN()
-    print(kdl_fk.chain)
     rclpy.spin(kdl_fk)
 
     kdl_fk.destroy_node()
