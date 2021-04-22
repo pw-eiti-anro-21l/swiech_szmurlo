@@ -68,7 +68,7 @@ class KDL_DKIN(Node):
         segment3 = kdl.Segment(joint_2_3,frame2)
         chain.addSegment(segment3)
 
-    def solve_forward_kinematics(self, chain, msg):
+    def solve_forward_kinematics(self, chain, msg, tool_length):
         fk_result = kdl.ChainFkSolverPos_recursive(chain)
         result_frame = kdl.Frame()
         joint_states = kdl.JntArray(3)
@@ -76,9 +76,8 @@ class KDL_DKIN(Node):
         joint_states[1] = msg.position[1]
         joint_states[2] = msg.position[2]
         fk_result.JntToCart(joint_states, result_frame)
-
-        quaternion = result_frame.M.GetQuaterion()
-
+        frame_orientation = result_frame.M.GetQuaternion()
+        tool_position = result_frame.p + tool_length
 
 def main(args=None):
 
