@@ -16,7 +16,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('urdf/*')),
-        (os.path.join('share', package_name), glob('launch/*')),
+        (os.path.join('share', package_name), glob('launch/*.py')),
+        
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -27,8 +28,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'state_publisher = zadanie3.state_publisher:main',
-        'kdl_dkin = zadanie3.KDL_DKIN:main'
+        'kdl_dkin = zadanie3.KDL_DKIN:main',
+        'nonkdl_dkin = zadanie3.NONKDL_DKIN:main',
         ],
     },
 )

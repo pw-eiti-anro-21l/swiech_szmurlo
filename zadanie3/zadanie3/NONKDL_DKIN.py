@@ -37,8 +37,8 @@ class NONKDL_DKIN(Node):
         self.publisher.publish(pose)
 
 
-    def get_xyz_rpy(msg):
-        with open("dh_params.json", "r") as file:
+    def get_xyz_rpy(self, msg):
+        with open("/home/maciej/dev_ws/src/swiech_szmurlo/zadanie3/zadanie3/dh_params.json", "r") as file:
             dh_params = json.load(file)
         rpy_xyz={}
         inter = 1
@@ -49,11 +49,13 @@ class NONKDL_DKIN(Node):
         params_array = []
         trans_matrix_list = []
 
+        msg_pos_it = 0
+
         for i in dh_params:
             dh_row = json.loads(json.dumps(i))
 
             a_translation = mathutils.Matrix.Translation((dh_row["a"], 0, 0))
-            d_translation = mathutils.Matrix.Translation((0, 0, dh_row["d"]+msg.position[i]))
+            d_translation = mathutils.Matrix.Translation((0, 0, dh_row["d"]+msg.position[msg_pos_it]))
             alpha_rotation = mathutils.Matrix.Rotation (dh_row["alpha"], 4, 'X')
             theta_rotation = mathutils.Matrix.Rotation (dh_row["theta"], 4, 'Z')
             
@@ -71,15 +73,9 @@ class NONKDL_DKIN(Node):
             for i in range(1, len(trans_matrix_list)):
                 base_tool_matrix = base_tool_matrix @ trans_matrix_list[i]
 
+            msg_pos_it += 1
         return base_tool_matrix
 
-
-    def transformation_matrix_to_quaternion(matrix):
-        rotation_matrix = create_rotation_matrix(matrix)
-        R_rotation_matrix = R.from_matrix(rotation_matrix)
-
-        frame_quaternion = R_rotation_matrix.as_quat()
-        return frame_quaternion
 
     def solve_forward_kinematics(self, msg, tool_length):
 
@@ -119,11 +115,11 @@ class NONKDL_DKIN(Node):
 def main(args=None):
 
     rclpy.init(args=args)
-    nonkdl_fk = NONKDL_DKIN()
+    nonkdl_dkin = NONKDL_DKIN()
 
-    rclpy.spin(nonkdl_fk)
+    rclpy.spin(nonkdl_dkin)
 
-    nonkdl_fk.destroy_node()
+    nonkdl_dkin.destroy_node()
     rclpy.shutdown()
 
 
