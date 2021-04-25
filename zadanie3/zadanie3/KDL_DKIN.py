@@ -23,7 +23,7 @@ class KDL_DKIN(Node):
         self.publisher_.publish(pose)
 
     def get_xyz_rpy(self):
-        with open("~/anro1_ws/src/swiech_szmurlo/zadanie3/zadanie3/dh_params.json", "r") as file:
+        with open("/home/maciej/dev_ws/src/swiech_szmurlo/zadanie3/zadanie3/dh_params.json", "r") as file:
             dh_params = json.load(file)
         xyz_array = []
         rpy_array = []
@@ -84,6 +84,11 @@ class KDL_DKIN(Node):
         pose.pose.orientation.z = frame_quaternion[2]
         pose.pose.orientation.w = frame_quaternion[3]
         print(pose.pose.orientation.x)
+
+        print (pose.pose.position.x)
+        print (pose.pose.position.y)
+        print (pose.pose.position.z)
+
         return pose
 
 def main(args=None):
