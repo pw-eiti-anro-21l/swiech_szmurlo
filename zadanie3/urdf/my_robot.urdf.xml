@@ -95,13 +95,13 @@
   <joint name="joint_3_tool" type="fixed">
     <parent link="link_3"/>
     <child link="tool"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <limit upper="0" lower="-0.2" effort="10" velocity="10"/>
   </joint>
   <link name="tool">
     <visual>
-      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.05" length="0.2"/>
       </geometry>

@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import String, Header
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import JointState
 import PyKDL as kdl
@@ -13,6 +13,7 @@ class KDL_DKIN(Node):
     def __init__(self):
         super().__init__('KDL_DKIN')
         self.publisher_ = self.create_publisher(PoseStamped, 'kdl_fk', 10)
+        self.vis = self.create_publisher(PoseStamped, 'visualisation_marker', 10)
         self.subsciber = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
         self.i = 0
         self.chain = self.build_chain()
@@ -23,7 +24,7 @@ class KDL_DKIN(Node):
         self.publisher_.publish(pose)
 
     def get_xyz_rpy(self):
-        with open("/home/maciej/dev_ws/src/swiech_szmurlo/zadanie3/zadanie3/dh_params.json", "r") as file:
+        with open("/home/piotr/anro1_ws/src/swiech_szmurlo/zadanie3/zadanie3/dh_params.json", "r") as file:
             dh_params = json.load(file)
         xyz_array = []
         rpy_array = []
@@ -49,12 +50,15 @@ class KDL_DKIN(Node):
         params = self.get_xyz_rpy()
         chain = kdl.Chain()
         joint_base_1 = kdl.Joint(kdl.Joint.TransZ)
-        joint_1_2 = kdl.Joint(kdl.Joint.TransZ)
-        joint_2_3 = kdl.Joint(kdl.Joint.TransZ)
+        joint_1_2 = kdl.Joint(kdl.Joint.TransY)
+        joint_2_3 = kdl.Joint(kdl.Joint.TransY)
 
-        frame0 = kdl.Frame(kdl.Rotation.RPY(params[0]['rpy'][0],params[0]['rpy'][1], params[0]['rpy'][2]), kdl.Vector(params[0]['xyz'][0],params[0]['xyz'][1], params[0]['xyz'][2]))
-        frame1 = kdl.Frame(kdl.Rotation.RPY(params[1]['rpy'][0],params[1]['rpy'][1], params[1]['rpy'][2]), kdl.Vector(params[1]['xyz'][0],params[1]['xyz'][1], params[1]['xyz'][2]))
-        frame2 = kdl.Frame(kdl.Rotation.RPY(params[2]['rpy'][0],params[2]['rpy'][1], params[2]['rpy'][2]), kdl.Vector(params[2]['xyz'][0],params[2]['xyz'][1], params[2]['xyz'][2]))
+        frame0 = kdl.Frame(kdl.Rotation.RPY(params[0]['rpy'][0],params[0]['rpy'][1], 
+        params[0]['rpy'][2]), kdl.Vector(params[0]['xyz'][0],params[0]['xyz'][1], params[0]['xyz'][2]))
+        frame1 = kdl.Frame(kdl.Rotation.RPY(params[1]['rpy'][0],params[1]['rpy'][1],
+         params[1]['rpy'][2]), kdl.Vector(params[1]['xyz'][0],params[1]['xyz'][1], params[1]['xyz'][2]))
+        frame2 = kdl.Frame(kdl.Rotation.RPY(params[2]['rpy'][0],params[2]['rpy'][1],
+         params[2]['rpy'][2]), kdl.Vector(params[2]['xyz'][0],params[2]['xyz'][1], params[2]['xyz'][2]))
         
         segment1 = kdl.Segment(joint_base_1,frame0)
         segment2 = kdl.Segment(joint_1_2,frame1)
@@ -71,23 +75,23 @@ class KDL_DKIN(Node):
         result_frame = kdl.Frame()
         joint_states = kdl.JntArray(3)
         joint_states[0] = msg.position[0]
-        joint_states[1] = msg.position[1]
-        joint_states[2] = msg.position[2]
+        joint_states[1] = -msg.position[1]
+        joint_states[2] = -msg.position[2]
         fk_solver.JntToCart(joint_states, result_frame)
         frame_quaternion = result_frame.M.GetQuaternion()
-        tool_position = result_frame.p + kdl.Vector(0,0,tool_length)
+        tool_position = result_frame.p# + kdl.Vector(0,0,tool_length)
         pose.pose.position.x = tool_position[0]
         pose.pose.position.y = tool_position[1]
-        pose.pose.position.z = tool_position[2]
+        pose.pose.position.z = tool_position[2]+1
         pose.pose.orientation.x = frame_quaternion[0]
         pose.pose.orientation.y = frame_quaternion[1]
         pose.pose.orientation.z = frame_quaternion[2]
         pose.pose.orientation.w = frame_quaternion[3]
-        print(pose.pose.orientation.x)
+        pose.header.frame_id = "base_link"
 
-        print (pose.pose.position.x)
-        print (pose.pose.position.y)
-        print (pose.pose.position.z)
+        print ('x: ', pose.pose.position.x)
+        print ('y: ', pose.pose.position.y)
+        print ('z: ', pose.pose.position.z)
 
         return pose
 

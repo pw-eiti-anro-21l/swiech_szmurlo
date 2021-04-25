@@ -19,7 +19,7 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import JointState
 
-from scipy.spatial.transform import Rotation as R
+#from scipy.spatial.transform import Rotation as R
 
 
 class NONKDL_DKIN(Node):
@@ -38,7 +38,7 @@ class NONKDL_DKIN(Node):
 
 
     def get_xyz_rpy(self, msg):
-        with open("/home/maciej/dev_ws/src/swiech_szmurlo/zadanie3/zadanie3/dh_params.json", "r") as file:
+        with open("/home/piotr/anro1_ws/src/swiech_szmurlo/zadanie3/zadanie3/dh_params.json", "r") as file:
             dh_params = json.load(file)
         rpy_xyz={}
         inter = 1
