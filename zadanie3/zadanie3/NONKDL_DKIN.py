@@ -95,14 +95,6 @@ class NONKDL_DKIN(Node):
         pose.pose.orientation.y = base_tool_quaternion[1] 
         pose.pose.orientation.z = base_tool_quaternion[2] 
         pose.pose.orientation.w = base_tool_quaternion[3] 
-
-        print ("X")
-        print (pose.pose.position.x)
-        print ("Y")
-        print (pose.pose.position.y)
-        print ("Z")
-        print (pose.pose.position.z)
-        
         return pose
 
 
