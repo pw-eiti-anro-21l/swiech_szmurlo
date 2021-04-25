@@ -1,6 +1,5 @@
 import rclpy
 from rclpy.node import Node
-
 import json
 import math
 from math import cos, sin, atan, atan2, sqrt
@@ -11,8 +10,6 @@ import rclpy
 import os
 from rclpy.clock import ROSClock
 import time
-
-
 from std_msgs.msg import String
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import Quaternion
