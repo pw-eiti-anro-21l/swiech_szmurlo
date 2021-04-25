@@ -20,7 +20,7 @@ class KDL_DKIN(Node):
         
         
     def listener_callback(self, msg):
-        pose = self.solve_forward_kinematics(self.chain, msg, 0.2)
+        pose = self.solve_forward_kinematics(self.chain, msg, 0.1)
         self.publisher_.publish(pose)
 
     def get_xyz_rpy(self):
@@ -79,7 +79,7 @@ class KDL_DKIN(Node):
         joint_states[2] = -msg.position[2]
         fk_solver.JntToCart(joint_states, result_frame)
         frame_quaternion = result_frame.M.GetQuaternion()
-        tool_position = result_frame.p# + kdl.Vector(0,0,tool_length)
+        tool_position = result_frame.p + kdl.Vector(tool_length,0,0)
         pose.pose.position.x = tool_position[0]
         pose.pose.position.y = tool_position[1]
         pose.pose.position.z = tool_position[2]+1

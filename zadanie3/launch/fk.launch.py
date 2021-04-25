@@ -25,30 +25,14 @@ def generate_launch_description():
             'use_sim_time',
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
-
-        Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            name='robot_state_publisher_robot',
-            output='screen',
-            parameters=[{
-                'use_sim_time': use_sim_time,
-                'robot_description': Command(['xacro', ' ', urdf])
-            }]),
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='screen',
-            parameters=[{'use_sim_time': use_sim_time}],
-            arguments=['-d', rviz]),
-        Node(
-            package='joint_state_publisher_gui',
-            executable='joint_state_publisher_gui',
-            name='joint_state_publisher_gui'),
         Node(
             package='zadanie3',
             executable='kdl_dkin',
-            name='kdl_pose_stamped'),
+            name='kdl_fk'),
+        Node(
+            package='zadanie3',
+            executable='nonkdl_dkin',
+            name='nonkdl_fk'),
+
 
     ])

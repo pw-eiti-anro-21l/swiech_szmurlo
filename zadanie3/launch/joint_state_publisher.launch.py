@@ -18,15 +18,10 @@ def generate_launch_description():
             package='joint_state_publisher_gui',
             executable='joint_state_publisher_gui',
             name='joint_state_publisher_gui'),
-            Node(
+        Node(
             package='zadanie3',
             executable='kdl_dkin',
-            name='kdl_pose_stamped',
-            parameters=[{
-                'use_sim_time': use_sim_time,
-                #'yaml_file': yaml
-            }],
-            output='screen'),
+            name='kdl_pose_stamped'),
 
 
     ])
