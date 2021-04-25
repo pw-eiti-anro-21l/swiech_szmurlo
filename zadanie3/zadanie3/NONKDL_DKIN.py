@@ -19,7 +19,6 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import JointState
 
-#from scipy.spatial.transform import Rotation as R
 
 
 class NONKDL_DKIN(Node):
@@ -31,9 +30,6 @@ class NONKDL_DKIN(Node):
         
     def listener_callback(self, msg):
         pose = self.solve_forward_kinematics(msg, 0.2)
-
-        # qos_profile = QosProfile(depth=10)
-
         self.publisher.publish(pose)
 
 
