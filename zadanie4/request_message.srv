@@ -1,0 +1,6 @@
+float64 position_joint1
+float64 position_joint2
+float64 position_joint3
+float64 interpolation_time
+---
+string server_feedback

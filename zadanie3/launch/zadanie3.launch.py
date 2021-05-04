@@ -46,9 +46,4 @@ def generate_launch_description():
             package='joint_state_publisher_gui',
             executable='joint_state_publisher_gui',
             name='joint_state_publisher_gui'),
-        Node(
-            package='zadanie3',
-            executable='kdl_dkin',
-            name='kdl_pose_stamped'),
-
     ])
