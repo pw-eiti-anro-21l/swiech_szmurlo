@@ -1,6 +1,5 @@
 import rclpy
 from rclpy.node import Node
-
 import json
 import math
 from math import cos, sin, atan, atan2, sqrt
@@ -11,15 +10,12 @@ import rclpy
 import os
 from rclpy.clock import ROSClock
 import time
-
-
 from std_msgs.msg import String
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import JointState
 
-#from scipy.spatial.transform import Rotation as R
 
 
 class NONKDL_DKIN(Node):
@@ -31,9 +27,6 @@ class NONKDL_DKIN(Node):
         
     def listener_callback(self, msg):
         pose = self.solve_forward_kinematics(msg, 0.2)
-
-        # qos_profile = QosProfile(depth=10)
-
         self.publisher.publish(pose)
 
 
@@ -99,14 +92,6 @@ class NONKDL_DKIN(Node):
         pose.pose.orientation.y = base_tool_quaternion[1] 
         pose.pose.orientation.z = base_tool_quaternion[2] 
         pose.pose.orientation.w = base_tool_quaternion[3] 
-
-        print ("X")
-        print (pose.pose.position.x)
-        print ("Y")
-        print (pose.pose.position.y)
-        print ("Z")
-        print (pose.pose.position.z)
-        
         return pose
 
 
