@@ -62,35 +62,43 @@ class InterpolationServer(Node):
         self.initial_joint_states = [joint_1_state, joint_2_state, joint_3_state]
 
     def trapezoid_interpolation (self, request):
-        max_vel = 5
         sample_time = 0.01
         steps = floor(request.interpolation_time/sample_time)
         joint_states = JointState()
         joint_states.name = ['joint_base_1', 'joint_1_2', 'joint_2_3']
         start_joint_states = self.initial_joint_states
+        max_vel_1 = 1.25 * (request.position_joint1 - start_joint_states[0]) / request.interpolation_time
+        max_vel_2 = 1.25 * (request.position_joint2 - start_joint_states[1]) / request.interpolation_time
+        max_vel_3 = 1.25 * (request.position_joint3 - start_joint_states[2]) / request.interpolation_time
+        
 
         for step in range(1, steps + 1):
             
             if step < 0.2 * steps:
-                curr_vel = max_vel*step/0.2*steps
-                joint_1_state = start_joint_states[0] + curr_vel * (step/steps) * request.interpolation_time / 2
-                joint_2_state = start_joint_states[1] + curr_vel * (step/steps) * request.interpolation_time / 2
-                joint_3_state = start_joint_states[2] + curr_vel * (step/steps) * request.interpolation_time / 2
+                curr_vel_1 = max_vel_1*step/(0.2*steps)
+                curr_vel_2 = max_vel_2*step/(0.2*steps)
+                curr_vel_3 = max_vel_3*step/(0.2*steps)
+                joint_1_state = start_joint_states[0] + curr_vel_1 * (step/steps) * request.interpolation_time / 2
+                joint_2_state = start_joint_states[1] + curr_vel_2 * (step/steps) * request.interpolation_time / 2
+                joint_3_state = start_joint_states[2] + curr_vel_3 * (step/steps) * request.interpolation_time / 2
+                
+            elif step >= 0.2*steps and step <= 0.8*steps:
+                joint_1_state = start_joint_states[0] + max_vel_1 * 0.2 * request.interpolation_time / 2 + max_vel_1 * ((step-0.2*steps)/steps) * request.interpolation_time
+                joint_2_state = start_joint_states[1] + max_vel_2 * 0.2 * request.interpolation_time / 2 + max_vel_2 * ((step-0.2*steps)/steps) * request.interpolation_time
+                joint_3_state = start_joint_states[2] + max_vel_3 * 0.2 * request.interpolation_time / 2 + max_vel_3 * ((step-0.2*steps)/steps) * request.interpolation_time
 
-            if step >= 0.2 * steps and step <= 0.8:
-                joint_1_state = start_joint_states[0] + max_vel * 0.2 * request.interpolation_time / 2 + max_vel * (step-0.2*steps/steps) * request.interpolation_time
-                joint_2_state = start_joint_states[1] + max_vel * 0.2 * request.interpolation_time / 2 + max_vel * (step-0.2*steps/steps) * request.interpolation_time
-                joint_3_state = start_joint_states[2] + max_vel * 0.2 * request.interpolation_time / 2 + max_vel * (step-0.2*steps/steps) * request.interpolation_time
+            elif step > 0.8 * steps:
+                curr_vel_1 = max_vel_1 - max_vel_1 * (step-0.8*steps)/(0.2*steps)
+                curr_vel_2 = max_vel_2 - max_vel_2 * (step-0.8*steps)/(0.2*steps)
+                curr_vel_3 = max_vel_3 - max_vel_3 * (step-0.8*steps)/(0.2*steps)
 
-            if step > 0.8 * steps:
-                curr_vel = max_vel * (steps-step) / 0.2*steps
-                joint_1_state = start_joint_states[0] + max_vel * 0.8 * request.interpolation_time - (steps - step) * curr_vel /2
-                joint_2_state = start_joint_states[1] + max_vel * 0.8 * request.interpolation_time - (steps - step) * curr_vel /2
-                joint_3_state = start_joint_states[2] + max_vel * 0.8 * request.interpolation_time - (steps - step) * curr_vel /2
+                joint_1_state = start_joint_states[0] + max_vel_1 * 0.8 * request.interpolation_time - (steps - step) / steps * curr_vel_1 * request.interpolation_time / 2
+                joint_2_state = start_joint_states[1] + max_vel_2 * 0.8 * request.interpolation_time - (steps - step) / steps * curr_vel_2 * request.interpolation_time / 2
+                joint_3_state = start_joint_states[2] + max_vel_3 * 0.8 * request.interpolation_time - (steps - step) / steps * curr_vel_3 * request.interpolation_time / 2
 
             joint_states.position = [float(joint_1_state), float(joint_2_state), float(joint_3_state)]
             self.joint_pub.publish(joint_states)
-            self.get_logger().info(str(curr_vel))
+            self.get_logger().info(str(joint_1_state))
             sleep(sample_time)
         self.initial_joint_states = [joint_1_state, joint_2_state, joint_3_state]
 
