@@ -26,6 +26,7 @@ setup(
     entry_points={
         'console_scripts': [
         	'service = zadanie4.jint_control_srv:main',
+        	'client = zadanie4.jint:main',
         ],
     },
 )

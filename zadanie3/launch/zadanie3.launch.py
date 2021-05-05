@@ -33,7 +33,7 @@ def generate_launch_description():
             output='screen',
             parameters=[{
                 'use_sim_time': use_sim_time,
-                'robot_description': Command(['xacro', ' ', urdf])
+                'robot_description': Command(['xacro', ' ', urdf]),
             }]),
         Node(
             package='rviz2',
@@ -43,7 +43,8 @@ def generate_launch_description():
             parameters=[{'use_sim_time': use_sim_time}],
             arguments=['-d', rviz]),
         Node(
-            package='joint_state_publisher_gui',
-            executable='joint_state_publisher_gui',
-            name='joint_state_publisher_gui'),
-    ])
+            package='joint_state_publisher',
+            executable='joint_state_publisher',
+            name='joint_state_publisher',
+            parameters=[{'source_list': ['joint_interpolate']}],
+    )])
