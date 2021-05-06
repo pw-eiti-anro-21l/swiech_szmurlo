@@ -13,12 +13,20 @@ class jint(Node):
         self.req = Interpolation.Request()
 
     def send_request(self):
-        self.req.position_joint1 = float(sys.argv[1])
-        self.req.position_joint2 = float(sys.argv[2])
-        self.req.position_joint3 = float(sys.argv[3])
-        self.req.interpolation_time = float(sys.argv[4])
-        self.req.method = sys.argv[5]
-        self.future = self.client.call_async(self.req)
+        try:
+            self.req.position_joint1 = float(sys.argv[1])
+            self.req.position_joint2 = float(sys.argv[2])
+            self.req.position_joint3 = float(sys.argv[3])
+            self.req.interpolation_time = float(sys.argv[4])
+            self.req.method = sys.argv[5]
+            self.future = self.client.call_async(self.req)
+        except ValueError:
+            self.req.position_joint1 = -1.
+            self.req.position_joint2 = -1.
+            self.req.position_joint3 = -1.
+            self.req.interpolation_time = -1.
+            self.req.method = sys.argv[5]
+            self.future = self.client.call_async(self.req)
 
 def main(args=None):
     rclpy.init(args=args)
