@@ -4,7 +4,8 @@ from zadanie4_interface.srv import OpInterpolation
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Quaternion
-from math import floor
+from transforms3d.euler import euler2quat
+from math import floor, pi
 from rclpy.qos import QoSProfile
 from time import sleep
 from visualization_msgs.msg import Marker
@@ -23,21 +24,19 @@ class OpInterpolationServer(Node):
         self.initial_position = [0, 0, 0]
         self.initial_orientation = [0, 0, 0]
 
+        # self.subsciber = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
+        self.in_action = False
+
+    # def listener_callback(self, msg):
+    #     if not self.in_action:
+    #         self.initial_position[0] = msg.position[0]
+    #         self.initial_position[1] = msg.position[1]
+    #         self.initial_position[2] = msg.position[2]
+
 
     def interpolation_callback(self, request, response):
 
-        if request.x_goal > 0:
-            request.x_goal = 0.
-        elif request.x_goal < -1:
-            request.x_goal = -1.
-        if request.y_goal > 0:
-            request.y_goal = 0.
-        elif request.y_goal < -1:
-            request.y_goal = -1.
-        if request.z_goal > 0:
-            request.z_goal = 0.
-        elif request.z_goal < -1:
-            request.z_goal = -1.
+        self.in_action = True
 
         if request.interpolation_time <= 0:
             response.server_feedback = "Given interpolation time < 0. Defaulting to 5s"
@@ -59,11 +58,12 @@ class OpInterpolationServer(Node):
             pose = self.trapezoid_interpolation(request)
             response.server_feedback = "Interpolation completed"
 
-        self.pose_publisher.publish(pose)
+        # self.pose_publisher.publish(pose)
         return response
     
 
     def linear_interpolation(self, request):
+
         sample_time = 0.01
         steps = floor(request.interpolation_time/sample_time)
         pose = PoseStamped()
@@ -82,21 +82,32 @@ class OpInterpolationServer(Node):
             ort_pitch = initial_orientation[1] + (request.pitch_goal - initial_orientation[1])/steps*step
             ort_yaw = initial_orientation[2] + (request.yaw_goal - initial_orientation[2])/steps*step
             ort_quaternion = Quaternion(w=0.0, x=ort_roll, y=ort_pitch, z=ort_yaw)
+
+            roll_rad = ort_roll * pi/180
+            pitch_rad = ort_pitch * pi/180
+            yaw_rad = ort_yaw * pi/180
+
+            quat = euler2quat (roll_rad, pitch_rad, yaw_rad)
             
             if request.version == "ext":
-                ort_quaternion = Quaternion(w=0.0, x=ort_roll, y=ort_pitch, z=ort_yaw)
+                ort_quaternion = Quaternion(w=0.0, x=roll_rad, y=pitch_rad, z=yaw_rad)
             else:
-                ort_quaternion = Quaternion(w=0.0, x=0.0, y=0.0, z=0.0)
+                ort_quaternion = Quaternion(w=quat[0], x=quat[1], y=quat[2], z=quat[3])
 
-
+            pose.header.frame_id = "base_link"
             pose.pose.position.x = pose_x
             pose.pose.position.y = pose_y
             pose.pose.position.z = pose_z
             pose.pose.orientation = ort_quaternion
 
             sleep(sample_time)
+            
+            self.pose_publisher.publish(pose)
 
-        return pose
+        self.initial_position = [pose_x, pose_y, pose_z]
+        self.initial_orientation = [ort_roll, ort_pitch, ort_yaw]
+
+            # return pose
 
         # self.initial_joint_states = [joint_1_state, joint_2_state, joint_3_state]
 
@@ -171,21 +182,28 @@ class OpInterpolationServer(Node):
             ort_pitch = ort_pitch + (last_vel_pitch + curr_vel_pitch) * request.interpolation_time/steps
             ort_yaw = ort_yaw + (last_vel_yaw + curr_vel_yaw) * request.interpolation_time/steps
             
+            roll_rad = ort_roll * pi/180
+            pitch_rad = ort_pitch * pi/180
+            yaw_rad = ort_yaw * pi/180
+
+            quat = euler2quat (roll_rad, pitch_rad, yaw_rad)
+            
             if request.version == "ext":
-                ort_quaternion = Quaternion(w=0.0, x=ort_roll, y=ort_pitch, z=ort_yaw)
+                ort_quaternion = Quaternion(w=0.0, x=roll_rad, y=pitch_rad, z=yaw_rad)
             else:
-                ort_quaternion = Quaternion(w=0.0, x=0.0, y=0.0, z=0.0)
+                ort_quaternion = Quaternion(w=quat[0], x=quat[1], y=quat[2], z=quat[3])
 
-
+            pose.header.frame_id = "base_link"
             pose.pose.position.x = pose_x
             pose.pose.position.y = pose_y
             pose.pose.position.z = pose_z
             pose.pose.orientation = ort_quaternion
-            pose.header.frame_id = "base_link"
 
             sleep(sample_time)
+            self.pose_publisher.publish(pose)
 
-        return pose
+        self.initial_position = [pose_x, pose_y, pose_z]
+        self.initial_orientation = [ort_roll, ort_pitch, ort_yaw]
 
 
 def main(args=None):
