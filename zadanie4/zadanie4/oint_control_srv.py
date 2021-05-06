@@ -83,21 +83,16 @@ class OpInterpolationServer(Node):
             ort_yaw = initial_orientation[2] + (request.yaw_goal - initial_orientation[2])/steps*step
             ort_quaternion = Quaternion(w=0.0, x=ort_roll, y=ort_pitch, z=ort_yaw)
             
+            if request.version == "ext":
+                ort_quaternion = Quaternion(w=0.0, x=ort_roll, y=ort_pitch, z=ort_yaw)
+            else:
+                ort_quaternion = Quaternion(w=0.0, x=0.0, y=0.0, z=0.0)
+
+
             pose.pose.position.x = pose_x
             pose.pose.position.y = pose_y
             pose.pose.position.z = pose_z
-            
-            if request.version == "ext":
-                pose.pose.orientation.x = ort_quaternion[0]
-                pose.pose.orientation.y = ort_quaternion[1]
-                pose.pose.orientation.z = ort_quaternion[2]
-                pose.pose.orientation.w = ort_quaternion[3]
-            
-            else:
-                pose.pose.orientation.x = 0.0
-                pose.pose.orientation.y = 0.0
-                pose.pose.orientation.z = 0.0
-                pose.pose.orientation.w = 0.0
+            pose.pose.orientation = ort_quaternion
 
             sleep(sample_time)
 
@@ -175,24 +170,18 @@ class OpInterpolationServer(Node):
             ort_roll = ort_roll + (last_vel_roll + curr_vel_roll) * request.interpolation_time/steps
             ort_pitch = ort_pitch + (last_vel_pitch + curr_vel_pitch) * request.interpolation_time/steps
             ort_yaw = ort_yaw + (last_vel_yaw + curr_vel_yaw) * request.interpolation_time/steps
-            ort_quaternion = Quaternion(w=0.0, x=ort_roll, y=ort_pitch, z=ort_yaw)
+            
+            if request.version == "ext":
+                ort_quaternion = Quaternion(w=0.0, x=ort_roll, y=ort_pitch, z=ort_yaw)
+            else:
+                ort_quaternion = Quaternion(w=0.0, x=0.0, y=0.0, z=0.0)
 
 
             pose.pose.position.x = pose_x
             pose.pose.position.y = pose_y
             pose.pose.position.z = pose_z
-
-            if request.version == "ext":
-                pose.pose.orientation.x = ort_quaternion[0]
-                pose.pose.orientation.y = ort_quaternion[1]
-                pose.pose.orientation.z = ort_quaternion[2]
-                pose.pose.orientation.w = ort_quaternion[3]
-            
-            else:
-                pose.pose.orientation.x = 0.0
-                pose.pose.orientation.y = 0.0
-                pose.pose.orientation.z = 0.0
-                pose.pose.orientation.w = 0.0
+            pose.pose.orientation = ort_quaternion
+            pose.header.frame_id = "base_link"
 
             sleep(sample_time)
 
@@ -202,9 +191,9 @@ class OpInterpolationServer(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    interpolation_server = InterpolationServer()
+    op_interpolation_server = OpInterpolationServer()
 
-    rclpy.spin(interpolation_server)
+    rclpy.spin(op_interpolation_server)
 
     rclpy.shutdown()
 

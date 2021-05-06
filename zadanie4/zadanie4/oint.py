@@ -1,5 +1,5 @@
 import sys
-from interpolation_interfaces.srv import OpInterpolation
+from zadanie4_interface.srv import OpInterpolation
 import rclpy
 from rclpy.node import Node
 
@@ -8,8 +8,8 @@ class oint(Node):
 
     def __init__(self):
         super().__init__('oint')
-        self.cli = self.create_client(OpInterpolation, 'op_interpolation')
-        while not self.cli.wait_for_service(timeout_sec=1.0):
+        self.client = self.create_client(OpInterpolation, 'op_interpolation')
+        while not self.client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
         self.req = OpInterpolation.Request()
 
@@ -35,7 +35,7 @@ class oint(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    oint_client = jint()
+    oint_client = oint()
     oint_client.send_request()
 
     while rclpy.ok():

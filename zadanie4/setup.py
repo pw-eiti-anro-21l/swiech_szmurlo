@@ -28,6 +28,8 @@ setup(
         'console_scripts': [
         	'interpolation_service = zadanie4.jint_control_srv:main',
         	'interpolation_client = zadanie4.jint:main',
+        	'op_client = zadanie4.oint:main',
+        	'op_service = zadanie4.oint_control_srv:main',
         ],
     },
 )
