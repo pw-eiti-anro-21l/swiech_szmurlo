@@ -16,6 +16,7 @@ class oint(Node):
         super().__init__('op_interpolation_server')
         self.srv = self.create_service(OpInterpolation, 'op_interpolation', self.interpolation_callback)
         qos_profile = QoSProfile(depth=10)
+        self.marker_publisher = self.create_publisher(MarkerArray, '/marker', qos_profile)
         self.pose_publisher = self.create_publisher(PoseStamped, 'oint_pose', qos_profile)
         self.initial_position = [0, 0, 0]
         self.initial_orientation = [0, 0, 0]
@@ -111,6 +112,19 @@ class oint(Node):
         ort_pitch = initial_orientation[1]
         ort_yaw = initial_orientation[2]
 
+        marker = Marker()
+        marker_array = MarkerArray()
+        marker.scale.x = 0.1
+        marker.scale.y = 0.1
+        marker.scale.z = 0.1
+        marker.color.a = 1.
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 1.0
+        marker.type = 1
+        marker.action = 0
+        marker.header.frame_id = "/base_link"
+
         for step in range(steps + 1):
             if step < 0.2*steps:
                 curr_vel_x = max_vel_x*step/(0.2*steps)
@@ -159,9 +173,18 @@ class oint(Node):
             pose.pose.position.y = pose_y
             pose.pose.position.z = pose_z
             pose.pose.orientation = ort_quaternion
-
             sleep(sample_time)
             self.pose_publisher.publish(pose)
+            marker.pose.position.x = pose_x
+            marker.pose.position.y = pose_y
+            marker.pose.position.z = pose_z
+            marker.pose.orientation = ort_quaternion
+            marker_array.markers.append(marker)
+            id=0
+            for marker in marker_array.markers:
+                marker.id = id
+                id += 1
+            self.marker_publisher.publish(marker_array)
 
         self.initial_position = [pose_x, pose_y, pose_z]
         self.initial_orientation = [ort_roll, ort_pitch, ort_yaw]
