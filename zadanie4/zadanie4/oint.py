@@ -9,7 +9,8 @@ from time import sleep
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 from math import cos, sin, floor
-
+import matplotlib
+import matplotlib.pyplot as plt
 class oint(Node):
 
     def __init__(self):
@@ -48,13 +49,27 @@ class oint(Node):
 
     def linear_interpolation(self, request):
 
+
         sample_time = 0.01
         steps = floor(request.interpolation_time/sample_time)
         pose = PoseStamped()
         initial_position = self.initial_position
         initial_orientation = self.initial_orientation
-        for step in range(steps + 1):
 
+        marker = Marker()
+        marker_array = MarkerArray()
+        marker.scale.x = 0.1
+        marker.scale.y = 0.1
+        marker.scale.z = 0.1
+        marker.color.a = 1.
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 1.0
+        marker.type = 1
+        marker.action = 0
+        marker.header.frame_id = "/base_link"
+
+        for step in range(steps + 1):
             pose_x = initial_position[0] + (request.x_goal - initial_position[0])/steps*step
             pose_y = initial_position[1] + (request.y_goal - initial_position[1])/steps*step
             pose_z = initial_position[2] + (request.z_goal - initial_position[2])/steps*step
@@ -68,6 +83,7 @@ class oint(Node):
                 ort_quaternion = self.euler_to_quaternion(ort_roll, ort_pitch, ort_yaw)
             else:
                 ort_quaternion = self.euler_to_quaternion(0, 0, 0)
+
             pose.header.frame_id = "base_link"
             pose.pose.position.x = pose_x
             pose.pose.position.y = pose_y
@@ -76,10 +92,20 @@ class oint(Node):
             sleep(sample_time)
             
             self.pose_publisher.publish(pose)
+            marker.pose.position.x = pose_x
+            marker.pose.position.y = pose_y
+            marker.pose.position.z = pose_z
+            marker.pose.orientation = ort_quaternion
+            marker_array.markers.append(marker)
+            id=0
+            for marker in marker_array.markers:
+                marker.id = id
+                id += 1
+            self.marker_publisher.publish(marker_array)
 
         self.initial_position = [pose_x, pose_y, pose_z]
         self.initial_orientation = [ort_roll, ort_pitch, ort_yaw]
-
+       
     def trapezoid_interpolation(self, request):
         sample_time = 0.01
         steps = floor(request.interpolation_time/sample_time)
@@ -167,7 +193,7 @@ class oint(Node):
                 ort_quaternion = self.euler_to_quaternion(ort_roll, ort_pitch, ort_yaw)
             else:
                 ort_quaternion = self.euler_to_quaternion(0, 0, 0)
-
+            
             pose.header.frame_id = "base_link"
             pose.pose.position.x = pose_x
             pose.pose.position.y = pose_y
