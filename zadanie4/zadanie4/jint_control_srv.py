@@ -1,13 +1,10 @@
 import rclpy
 from rclpy.node import Node
-from example_interfaces.srv import AddTwoInts
 from zadanie4_interface.srv import Interpolation
 from sensor_msgs.msg import JointState
 from math import floor
 from rclpy.qos import QoSProfile
 from time import sleep
-from visualization_msgs.msg import Marker
-from visualization_msgs.msg import MarkerArray
 class InterpolationServer(Node):
 
     def __init__(self):
@@ -16,7 +13,6 @@ class InterpolationServer(Node):
         qos_profile = QoSProfile(depth=10)
         self.joint_pub = self.create_publisher(JointState, 'joint_interpolate', qos_profile)
         self.initial_joint_states = [0, 0, 0]
-        self.marker_pub = self.create_publisher(MarkerArray, '/marker', qos_profile)
 
     def interpolation_callback(self, request, response):
 
@@ -77,24 +73,6 @@ class InterpolationServer(Node):
         pos1 = start_joint_states[0]
         pos2 = start_joint_states[1]
         pos3 = start_joint_states[2]
-
-        markerArray = MarkerArray()
-        marker = Marker()
-        marker.header.frame_id = "/tool"
-        marker.type = 2
-        marker.action = 0
-        marker.color.a = 1.
-        marker.color.r = 1.
-        marker.color.g = 0.
-        marker.color.b = 0.
-        marker.scale.x = 0.1
-        marker.scale.y = 0.1
-        marker.scale.z = 0.1
-        # marker.pose.orientation.w = 1.0
-        # marker.pose.orientation.x = 1.0
-        # marker.pose.orientation.y = 1.0
-        # marker.pose.orientation.z = 1.0
-
         for step in range(steps + 1):
             if step < 0.2*steps:
                 curr_vel_1 = max_vel_1*step/(0.2*steps)
@@ -108,7 +86,6 @@ class InterpolationServer(Node):
                 curr_vel_1 = max_vel_1 - max_vel_1 * (step-0.8*steps)/(0.2*steps)
                 curr_vel_2 = max_vel_2 - max_vel_2 * (step-0.8*steps)/(0.2*steps)
                 curr_vel_3 = max_vel_3 - max_vel_3 * (step-0.8*steps)/(0.2*steps)
-
             pos1 = pos1 + (last_vel_1+curr_vel_1)*request.interpolation_time/steps
             pos2 = pos2 + (last_vel_2+curr_vel_2)*request.interpolation_time/steps
             pos3 = pos3 + (last_vel_3+curr_vel_3)*request.interpolation_time/steps
@@ -119,16 +96,6 @@ class InterpolationServer(Node):
             joint_states.position = [float(joint_1_state), float(joint_2_state), float(joint_3_state)]
             self.joint_pub.publish(joint_states)
             sleep(sample_time)
-            marker.pose.position.y = 0
-            marker.pose.position.z = 0
-            marker.pose.position.x = 0
-            markerArray.markers.append(marker)
-            id = 0
-            for marker in markerArray.markers:
-                marker.id = id
-                id += 1
-            self.marker_pub.publish(markerArray)
-
         self.initial_joint_states = [joint_1_state, joint_2_state, joint_3_state]
         pos1 = joint_1_state
         pos2 = joint_2_state
@@ -136,11 +103,8 @@ class InterpolationServer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
     interpolation_server = InterpolationServer()
-
     rclpy.spin(interpolation_server)
-
     rclpy.shutdown()
 
 
