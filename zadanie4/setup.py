@@ -14,7 +14,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name), glob('srv/*.srv')),
+        (os.path.join('share', package_name), glob('urdf/*')),
+        (os.path.join('share', package_name), glob('launch/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,8 +26,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        	'service = zadanie4.jint_control_srv:main',
-        	'client = zadanie4.jint:main',
+        	'interpolation_service = zadanie4.jint_control_srv:main',
+        	'interpolation_client = zadanie4.jint:main',
         ],
     },
 )
