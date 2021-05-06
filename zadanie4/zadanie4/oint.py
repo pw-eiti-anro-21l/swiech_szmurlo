@@ -23,29 +23,30 @@ class oint(Node):
         self.initial_orientation = [0, 0, 0]
 
     def interpolation_callback(self, request, response):
+        if request.interpolation_time != -1:
+            if request.interpolation_time <= 0:
+                response.server_feedback = "Given interpolation time < 0. Defaulting to 5s"
+                request.interpolation_time = 5
+            
+            if request.version != "std" and request.version != "ext":
+                response.server_feedback = "Given version is wrong. Defaulting to standard"
+                request.version = "std"
 
-        if request.interpolation_time <= 0:
-            response.server_feedback = "Given interpolation time < 0. Defaulting to 5s"
-            request.interpolation_time = 5
-        
-        if request.version != "std" and request.version != "ext":
-            response.server_feedback = "Given version is wrong. Defaulting to standard"
-            request.version = "std"
+            if request.method != "linear" and request.method != "trapezoid":
+                request.method = "linear"
+                self.get_logger().info("Given interpolation method is wrong. Defaulting to linear")
 
-        if request.method != "linear" and request.method != "trapezoid":
-            request.method = "linear"
-            self.get_logger().info("Given interpolation method is wrong. Defaulting to linear")
+            if request.method == "linear":
+                self.linear_interpolation(request)
+                response.server_feedback = "Interpolation completed"
 
-        if request.method == "linear":
-            self.linear_interpolation(request)
-            response.server_feedback = "Interpolation completed"
+            elif request.method == "trapezoid":
+                self.trapezoid_interpolation(request)
+                response.server_feedback = "Interpolation completed"
 
-        elif request.method == "trapezoid":
-            self.trapezoid_interpolation(request)
-            response.server_feedback = "Interpolation completed"
-
+        else:
+            response.server_feedback = "Interpolation failed: Invalid arguments"
         return response
-    
 
     def linear_interpolation(self, request):
 

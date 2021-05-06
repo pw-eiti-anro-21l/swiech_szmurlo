@@ -25,7 +25,14 @@ class jint(Node):
             self.req.position_joint2 = -1.
             self.req.position_joint3 = -1.
             self.req.interpolation_time = -1.
-            self.req.method = sys.argv[5]
+            self.req.method = ""
+            self.future = self.client.call_async(self.req)
+        except IndexError:
+            self.req.position_joint1 = -1.
+            self.req.position_joint2 = -1.
+            self.req.position_joint3 = -1.
+            self.req.interpolation_time = -1.
+            self.req.method = ""
             self.future = self.client.call_async(self.req)
 
 def main(args=None):
