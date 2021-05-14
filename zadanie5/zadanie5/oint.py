@@ -17,20 +17,87 @@ class OpInterpolationServer(Node):
     def __init__(self):
         super().__init__('op_interpolation_server')
         self.srv = self.create_service(ToolPosition, 'op_interpolation', self.interpolation_callback)
-        
         qos_profile = QoSProfile(depth=10)
+        self.marker_publisher = self.create_publisher(MarkerArray, '/marker', qos_profile)
         self.pose_publisher = self.create_publisher(PoseStamped, '/pose_ikin', qos_profile)
 
-        self.initial_position = [0, 0, 0]
+        self.initial_position = [1., -1., 2.]
 
     def interpolation_callback(self, request, response):
-
+        pose = PoseStamped()
         self.in_action = True
-
-        pose = self.trapezoid_interpolation(request)
-
+        response.server_feedback = "www"
+        if request.method == "rectangle":
+            self.interpolate_rectangle(request)
         return response
     
+    def interpolate_rectangle(self, request):
+        pose = PoseStamped()
+        a = request.a
+        b = request.b
+        perimeter = 2*(a + b)
+        sample_time = 0.01
+        steps_a = floor(request.interpolation_time/sample_time*(a/perimeter))
+        steps_b = floor(request.interpolation_time/sample_time*(b/perimeter))
+        initial_position = self.initial_position
+
+        marker = Marker()
+        marker_array = MarkerArray()
+        marker.scale.x = 0.04
+        marker.scale.y = 0.04
+        marker.scale.z = 0.04
+        marker.color.a = 1.
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 1.0
+        marker.type = 2
+        marker.action = 0
+        marker.header.frame_id = "/base_link"
+
+        for krok in [1,2,3,4]:
+            x_goal = 1
+            if krok == 1:
+                y_goal = initial_position[1]
+                z_goal = initial_position[2] - b
+                steps = steps_b
+            elif krok == 2:
+                y_goal = initial_position[1] + a
+                z_goal = initial_position[2]
+                steps = steps_a
+            elif krok == 3:
+                y_goal = initial_position[1]
+                z_goal = initial_position[2] + b
+                steps = steps_b
+            elif krok == 4:
+                y_goal = initial_position[1] - a
+                z_goal = initial_position[2]
+                steps = steps_a
+            for step in range(steps + 1):
+
+                pose_x = initial_position[0] + (x_goal - initial_position[0])/steps*step
+                pose_y = initial_position[1] + (y_goal - initial_position[1])/steps*step
+                pose_z = initial_position[2] + (z_goal - initial_position[2])/steps*step
+
+                pose.header.frame_id = "base_link"
+                pose.pose.position.x = pose_x
+                pose.pose.position.y = pose_y
+                pose.pose.position.z = pose_z
+
+                sleep(sample_time)
+                pose.header.frame_id = "base_link"
+                self.pose_publisher.publish(pose)
+                marker.pose.position.x = pose_x
+                marker.pose.position.y = pose_y
+                marker.pose.position.z = pose_z
+                marker_array.markers.append(marker)
+                id=0
+                for marker in marker_array.markers:
+                    marker.id = id
+                    id += 1
+                self.marker_publisher.publish(marker_array)
+
+            initial_position = [pose_x, pose_y, pose_z]
+
 
     def linear_interpolation(self, request):
 

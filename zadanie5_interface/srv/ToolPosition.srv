@@ -1,6 +1,6 @@
-float64 x_goal
-float64 y_goal
-float64 z_goal
+string method
+float64 a
+float64 b
 float64 interpolation_time
 ---
 string server_feedback
