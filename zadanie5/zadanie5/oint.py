@@ -84,7 +84,6 @@ class OpInterpolationServer(Node):
                 pose.pose.position.z = pose_z
 
                 sleep(sample_time)
-                pose.header.frame_id = "base_link"
                 self.pose_publisher.publish(pose)
                 marker.pose.position.x = pose_x
                 marker.pose.position.y = pose_y

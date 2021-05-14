@@ -20,8 +20,14 @@ class oint(Node):
         self.req.a= float(sys.argv[2])
         self.req.b = float(sys.argv[3])
         self.req.interpolation_time = float(sys.argv[4])
-
-        self.future = self.client.call_async(self.req)
+        if self.req.method != "rectangle" and self.req.method != "ellipse":
+            self.get_logger().info("Bad method. Use 'rectangle' or 'ellipse'")
+        elif self.req.a <=0 or self.req.a > 1 or self.req.b <=0 or self.req.b > 1:
+            self.get_logger().info("Unreachable points in rectangle. a,b should be between 0 and 1")
+        elif self.req.interpolation_time <= 0:
+            self.get_logger().info("Time cannot be 0 or negative")
+        else:
+            self.future = self.client.call_async(self.req)
 
 
 def main(args=None):
