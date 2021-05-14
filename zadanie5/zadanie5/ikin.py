@@ -13,16 +13,17 @@ class IKIN(Node):
 
     def __init__(self):
         super().__init__('ikin')
-        self.srv = self.create_service(PoseStamped, '/pose_stamped', self.service_callback)
+        self.pose_subscriber = self.create_subscription(PoseStamped, '/pose_ikin', self.listener_callback)
+
         qos_profile = QoSProfile(depth=10)
         self.joint_publisher = self.create_publisher(JointState, '/joint_interpolate', qos_profile)
 
-    def service_callback(self, request, response):
+    def listener_callback(self, request, response):
 
         pose = request
         
         self.solve_inverse_kinematics(pose)
-        self.get_logger()
+        self.get_logger().info("dupa")
 
         return response
 
@@ -91,8 +92,16 @@ class IKIN(Node):
 
 def main(args=None):
     rclpy.init(args=args)
+<<<<<<< HEAD
     inv_kin_service = IKIN()
     rclpy.spin(inv_kin_service)
+=======
+
+    inv_kin_subscriber = IKIN()
+
+    rclpy.spin(inv_kin_subscriber)
+
+>>>>>>> 11e2178d50188d08d87f1bd7b6b7911398407e9d
     rclpy.shutdown()
 
 

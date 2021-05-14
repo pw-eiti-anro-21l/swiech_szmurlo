@@ -19,17 +19,9 @@ class oint(Node):
         self.req.x_goal = float(sys.argv[1])
         self.req.y_goal= float(sys.argv[2])
         self.req.z_goal = float(sys.argv[3])
-
-        self.req.roll_goal = float(sys.argv[4])
-        self.req.pitch_goal= float(sys.argv[5])
-        self.req.yaw_goal = float(sys.argv[6])
-        self.req.interpolation_time = float(sys.argv[7])
-        self.req.method = sys.argv[8]
-        self.req.version = sys.argv[9]
+        self.req.interpolation_time = float(sys.argv[4])
 
         self.future = self.client.call_async(self.req)
-
-
 
 
 def main(args=None):
