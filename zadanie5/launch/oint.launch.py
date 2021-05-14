@@ -10,12 +10,12 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
     urdf_file_name = 'my_robot.urdf.xml'
-    rviz_file_name = 'my_axis.rviz'
+    rviz_file_name = 'my_robot.rviz'
     urdf = os.path.join(
-        get_package_share_directory('zadanie4'),
+        get_package_share_directory('zadanie5'),
         urdf_file_name)
     rviz = os.path.join(
-        get_package_share_directory('zadanie4'),
+        get_package_share_directory('zadanie5'),
         rviz_file_name)
     with open(urdf, 'r') as infp:
         robot_desc = infp.read()
@@ -26,8 +26,8 @@ def generate_launch_description():
             default_value='false',
             description='Use simulation (Gazebo) clock if true'),
         Node(
-            package='zadanie4',
-            executable='op_service',
-            name='op_service'),
+            package='zadanie5',
+            executable='pos_service',
+            name='pos_service'),
 
     ])
