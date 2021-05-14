@@ -29,5 +29,9 @@ def generate_launch_description():
             package='zadanie5',
             executable='pos_service',
             name='pos_service'),
+        Node(
+            package='zadanie5',
+            executable='ikin',
+            name='ikin'),
 
     ])
