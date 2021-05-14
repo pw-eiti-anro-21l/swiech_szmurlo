@@ -28,6 +28,7 @@ class IKIN(Node):
         return response
 
     def solve_inverse_kinematics (self, pose):
+ 
 
         joint_states = JointState()
         joint_states.name = ['joint_base_1', 'joint_1_2', 'joint_2_3']
@@ -40,19 +41,18 @@ class IKIN(Node):
         joint_1_2_trans = -pose_y
         joint_2_3_trans = pose_x
 
-        if joint_base_1_trans < -1 or joint_base_1_trans > 0:
+        if joint_base_1_trans < 0 or joint_base_1_trans > 1:
             raise Exception("Niemożliwe do zrealizowania położenie stawu base -> 1")
         
-        if joint_1_2_trans < -1 or joint_1_2_trans > 0:
+        if joint_1_2_trans < 0 or joint_1_2_trans > 1:
             raise Exception("Niemożliwe do zrealizowania położenie stawu 1 -> 2")
 
         if joint_2_3_trans < -1 or joint_2_3_trans > 0:
             raise Exception("Niemożliwe do zrealizowania położenie stawu 2 -> 3")
 
-
-
-        joint_states.position = [float(joint_base_1_trans), float(joint_1_2_trans), float(joint_2_3_trans)]
-        self.joint_pub.publish(joint_states)
+        else:
+            joint_states.position = [float(joint_base_1_trans), float(joint_1_2_trans), float(joint_2_3_trans)]
+            self.joint_pub.publish(joint_states)
 
 
 
@@ -61,6 +61,7 @@ class IKIN(Node):
             dh_params = json.load(file)
             xyz_array = []
             rpy_array = []
+            d_translations = []
             params_array = []
             trans_matrix_list = []
             msg_pos_it = 0
@@ -70,6 +71,8 @@ class IKIN(Node):
                 d_translation = mathutils.Matrix.Translation((0, 0, dh_row["d"]+msg.position[msg_pos_it]))
                 alpha_rotation = mathutils.Matrix.Rotation (dh_row["alpha"], 4, 'X')
                 theta_rotation = mathutils.Matrix.Rotation (dh_row["theta"], 4, 'Z')
+                d_translations.append(d_translation)
+
                 trans_matrix = a_translation @ alpha_rotation @ d_translation @ theta_rotation
                 rpy = transformations.euler_from_matrix(trans_matrix)
                 xyz = transformations.translation_from_matrix(trans_matrix)
@@ -81,7 +84,7 @@ class IKIN(Node):
                 for i in range(1, len(trans_matrix_list)):
                     base_tool_matrix = base_tool_matrix @ trans_matrix_list[i]
                 msg_pos_it += 1
-            return base_tool_matrix
+            return d_translations
 
 
 def main(args=None):

@@ -20,6 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+        	'pos_service = zadanie5.oint_control_srv:main',
+        	'pos_client = zadanie5.oint:main',
+        	'ikin = zadanie5.ikin:main',
         ],
     },
 )

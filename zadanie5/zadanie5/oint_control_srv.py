@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from zadanie4_interface.srv import OpInterpolation
+from zadanie5_interface.srv import ToolPosition
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Quaternion
@@ -16,10 +16,10 @@ class OpInterpolationServer(Node):
 
     def __init__(self):
         super().__init__('op_interpolation_server')
-        self.srv = self.create_service(OpInterpolation, 'op_interpolation', self.interpolation_callback)
+        self.srv = self.create_service(ToolPosition, 'op_interpolation', self.interpolation_callback)
         
         qos_profile = QoSProfile(depth=10)
-        self.pose_publisher = self.create_publisher(PoseStamped, 'oint_pose', qos_profile)
+        self.pose_publisher = self.create_publisher(PoseStamped, '/pose_ikin', qos_profile)
 
         self.initial_position = [0, 0, 0]
         self.initial_orientation = [0, 0, 0]
