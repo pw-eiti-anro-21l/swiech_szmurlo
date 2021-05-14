@@ -12,10 +12,10 @@ def generate_launch_description():
     urdf_file_name = 'my_robot.urdf.xml'
     rviz_file_name = 'my_robot.rviz'
     urdf = os.path.join(
-        get_package_share_directory('zadanie4'),
+        get_package_share_directory('zadanie5'),
         urdf_file_name)
     rviz = os.path.join(
-        get_package_share_directory('zadanie4'),
+        get_package_share_directory('zadanie5'),
         rviz_file_name)
     with open(urdf, 'r') as infp:
         robot_desc = infp.read()
