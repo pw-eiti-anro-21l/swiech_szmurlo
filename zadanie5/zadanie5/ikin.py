@@ -14,7 +14,6 @@ class IKIN(Node):
     def __init__(self):
         super().__init__('ikin')
         self.srv = self.create_service(PoseStamped, '/pose_stamped', self.service_callback)
-
         qos_profile = QoSProfile(depth=10)
         self.joint_publisher = self.create_publisher(JointState, '/joint_interpolate', qos_profile)
 
@@ -92,11 +91,8 @@ class IKIN(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
     inv_kin_service = IKIN()
-
     rclpy.spin(inv_kin_service)
-
     rclpy.shutdown()
 
 
