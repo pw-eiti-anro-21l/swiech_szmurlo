@@ -18,10 +18,8 @@ class IKIN(Node):
         self.joint_publisher = self.create_publisher(JointState, '/joint_interpolate', qos_profile)
 
     def listener_callback(self, msg):
-
-        joint_states = self.solve_inverse_kinematics(msg)
-        self.get_logger().info("dapu")
-        self.joint_publisher.publish(joint_states)
+        self.solve_inverse_kinematics(msg)
+        
 
     def solve_inverse_kinematics (self, pose):
         joint_states = JointState()
@@ -31,33 +29,23 @@ class IKIN(Node):
         pose_y = pose.pose.position.y
         pose_z = pose.pose.position.z
 
-        # pose_x = 0.5 #(0,1)
-        # pose_y = -0.5 #(-1,0)
-        # pose_z = 2 #(1,2)
+        # pose_x = 0.5
+        # pose_y = -0.5
+        # pose_z = 1.5
 
         joint_base_1_trans = pose_z - 2
         joint_1_2_trans = -1 - pose_y
         joint_2_3_trans = pose_x - 1
-        # joint_base_1_trans = -1.
-        # joint_1_2_trans = -1.
-        # joint_2_3_trans = -1.
-        joint_states.position = [float(joint_base_1_trans), float(joint_1_2_trans), float(joint_2_3_trans)]
 
-        # if joint_base_1_trans < 0 or joint_base_1_trans > 1:
-        #     pass
-        #     # raise Exception("Niemożliwe do zrealizowania położenie stawu base -> 1")
-        
-        # if joint_1_2_trans < 0 or joint_1_2_trans > 1:
-        #     pass
-        #     # raise Exception("Niemożliwe do zrealizowania położenie stawu 1 -> 2")
-
-        # if joint_2_3_trans < -1 or joint_2_3_trans > 0:
-        #     pass
-        #     # raise Exception("Niemożliwe do zrealizowania położenie stawu 2 -> 3")
-
-        # else:
-            
-        return joint_states
+        if joint_base_1_trans > 0 or joint_base_1_trans < -1:
+            self.get_logger().info("joint_base_1 cannot move further")
+        elif joint_1_2_trans > 0 or joint_1_2_trans < -1:
+            self.get_logger().info("joint_1_2 cannot move further")
+        elif joint_1_2_trans > 0 or joint_1_2_trans < -1:
+            self.get_logger().info("joint_2_3 cannot move further")
+        else:
+            joint_states.position = [float(joint_base_1_trans), float(joint_1_2_trans), float(joint_2_3_trans)]
+            self.joint_publisher.publish(joint_states)
 
 
 def main(args=None):
