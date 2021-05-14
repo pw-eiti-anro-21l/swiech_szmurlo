@@ -48,7 +48,7 @@ class OpInterpolationServer(Node):
 
         if request.method != "linear" and request.method != "trapezoid":
             request.method = "linear"
-            self.get_logger().info("Given interpolation method is wrong. Defaulting to linearear")
+            self.get_logger().info("Given interpolation method is wrong. Defaulting to linear")
 
         if request.method == "linear":
             pose = self.linear_interpolation(request)
