@@ -20,10 +20,10 @@ class OpInterpolationServer(Node):
         self.pose_publisher = self.create_publisher(PoseStamped, '/pose_ikin', qos_profile)
         self.subsciber = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
         self.joint_pub = self.create_publisher(JointState, 'joint_interpolate', qos_profile)
+        self.tool_length = 0.1
         self.initial_position = [0.5, -0.5, 1.5]
         self.in_action = False
-        self.initial_joint_states = [0, 0, 0]
-
+        self.initial_joint_states = [-0.5, -0.5, -0.6]
     def listener_callback(self, msg):
         if not self.in_action:
             self.initial_joint_states[0] = msg.position[0]
@@ -33,18 +33,24 @@ class OpInterpolationServer(Node):
     def interpolation_callback(self, request, response):
         self.in_action = True
         pose = PoseStamped()
+        if request.a <= 0 or request.b <= 0:
+            response.server_feedback = "Length 'a' and height 'b' cannot be 0 or negative"
+            return response
+        if request.a > 0.5 or request.b > 0.5:
+            response.server_feedback = "Length 'a' and height 'b' cannot be greater than 0.5"
+            return response
         if request.method != "rectangle" and request.method != "ellipse":
             response.server_feedback = "Bad method. Choose 'rectangle' or 'ellipse'"
             return response
-        if request.interpolation_time < 0:
+        if request.interpolation_time <= 0:
             response.server_feedback = "Interpolation time cannot be 0 or negative"
             return response
-        if self.initial_joint_states != [-0.5, -0.5, -0.5]:
-            self.trapezoid_interpolation([-0.5, -0.5, -0.5], 2)
+        if self.initial_joint_states != [-0.5, -0.5, -0.6]:
+            self.trapezoid_interpolation([-0.5, -0.5, -0.6], 2)
         if request.method == "rectangle":
-            was_completed = self.interpolate_rectangle(request)
+            was_completed = self.interpolate_rectangle(request, self.tool_length)
         if request.method == "ellipse":
-            was_completed = self.interpolate_ellipse(request)
+            was_completed = self.interpolate_ellipse(request, self.tool_length)
         self.in_action = False
         if was_completed:
             response.server_feedback = "Interpolation completed"
@@ -52,7 +58,7 @@ class OpInterpolationServer(Node):
             response.server_feedback = "Interpolation failed: unreachable points"
         return response
     
-    def interpolate_rectangle(self, request):
+    def interpolate_rectangle(self, request, tool_length):
         pose = PoseStamped()
         a = request.a
         b = request.b
@@ -60,7 +66,6 @@ class OpInterpolationServer(Node):
         sample_time = 0.01
         steps_a = floor(request.interpolation_time/sample_time*(a/perimeter))
         steps_b = floor(request.interpolation_time/sample_time*(b/perimeter))
-        initial_position = self.initial_position
 
         marker = Marker()
         marker_array = MarkerArray()
@@ -74,9 +79,10 @@ class OpInterpolationServer(Node):
         marker.type = 2
         marker.action = 0
         marker.header.frame_id = "/base_link"
-        x_goal = initial_position[0]
+        pose_x = self.initial_position[0]
 
         for krok in [1,2,3,4]:
+            initial_position = self.initial_position
             if krok == 1:
                 y_goal = initial_position[1]
                 z_goal = initial_position[2] - b
@@ -95,7 +101,7 @@ class OpInterpolationServer(Node):
                 steps = steps_a
             for step in range(steps + 1):
 
-                pose_x = initial_position[0] + (x_goal - initial_position[0])/steps*step
+                # pose_x = initial_position[0] + (x_goal - initial_position[0])/steps*step
                 pose_y = initial_position[1] + (y_goal - initial_position[1])/steps*step
                 pose_z = initial_position[2] + (z_goal - initial_position[2])/steps*step
                 if pose_y > 0 or pose_y < -1:
@@ -121,10 +127,10 @@ class OpInterpolationServer(Node):
                     id += 1
                 self.marker_publisher.publish(marker_array)
 
-            initial_position = [pose_x, pose_y, pose_z]
+            self.initial_position = [pose_x, pose_y, pose_z]
         return True
 
-    def interpolate_ellipse(self, request):
+    def interpolate_ellipse(self, request, tool_length):
         pose = PoseStamped()
         a = request.a/2
         b = request.b/2
@@ -132,9 +138,6 @@ class OpInterpolationServer(Node):
         steps = floor(request.interpolation_time/sample_time)
         initial_position = self.initial_position
         pose_x = initial_position[0]
-        # self.get_logger().info(str(initial_position[0]))
-        # self.get_logger().info(str(initial_position[1]))
-        # self.get_logger().info(str(initial_position[2]))
         marker = Marker()
         marker_array = MarkerArray()
         marker.scale.x = 0.04
@@ -150,8 +153,6 @@ class OpInterpolationServer(Node):
         for step in range(steps + 1):
             pose_y = initial_position[1] + a*cos(2*pi*step/steps) - a
             pose_z = initial_position[2] + b*sin(2*pi*step/steps)
-            # self.get_logger().info(str(pose_y))
-            # self.get_logger().info(str(pose_z))
             if pose_y > 0 or pose_y < -1:
                 self.get_logger().info("Point is unreachable")
                 return False
@@ -175,7 +176,7 @@ class OpInterpolationServer(Node):
                 id += 1
             self.marker_publisher.publish(marker_array)
 
-        initial_position = [pose_x, pose_y, pose_z]
+        self.initial_position = [pose_x , pose_y, pose_z]
         return True
 
 

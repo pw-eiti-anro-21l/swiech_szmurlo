@@ -15,12 +15,14 @@ class oint(Node):
 
 
     def send_request(self):
-
-        self.req.method = sys.argv[1]
-        self.req.a= float(sys.argv[2])
-        self.req.b = float(sys.argv[3])
-        self.req.interpolation_time = float(sys.argv[4])
-        self.future = self.client.call_async(self.req)
+        try:
+            self.req.method = sys.argv[1]
+            self.req.a= float(sys.argv[2])
+            self.req.b = float(sys.argv[3])
+            self.req.interpolation_time = float(sys.argv[4])
+            self.future = self.client.call_async(self.req)
+        except ValueError:
+            self.get_logger().info("Incorrect parameters")
 
 
 def main(args=None):

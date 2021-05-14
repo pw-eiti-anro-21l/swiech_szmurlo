@@ -16,7 +16,9 @@ class IKIN(Node):
         qos_profile = QoSProfile(depth=10)
         self.pose_subscriber = self.create_subscription(PoseStamped, '/pose_ikin', self.listener_callback, qos_profile)
         self.joint_publisher = self.create_publisher(JointState, '/joint_interpolate', qos_profile)
-
+        self.link_length = 1
+        self.tool_length = 0.1
+        self.base_length = 1
     def listener_callback(self, msg):
         self.solve_inverse_kinematics(msg)
         
@@ -33,9 +35,9 @@ class IKIN(Node):
         # pose_y = -0.5
         # pose_z = 1.5
 
-        joint_base_1_trans = pose_z - 2
-        joint_1_2_trans = -1 - pose_y
-        joint_2_3_trans = pose_x - 1
+        joint_base_1_trans = pose_z - self.link_length - self.base_length
+        joint_1_2_trans = -self.link_length - pose_y
+        joint_2_3_trans = pose_x - self.link_length - self.tool_length
 
         if joint_base_1_trans > 0 or joint_base_1_trans < -1:
             self.get_logger().info("joint_base_1 cannot move further")
@@ -50,11 +52,8 @@ class IKIN(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-
     inv_kin_subscriber = IKIN()
-
     rclpy.spin(inv_kin_subscriber)
-
     rclpy.shutdown()
 
 
