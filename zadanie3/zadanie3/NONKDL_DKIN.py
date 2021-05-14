@@ -16,7 +16,9 @@ class NONKDL_DKIN(Node):
         super().__init__('NONKDL_DKIN')
         self.publisher = self.create_publisher(PoseStamped, '/nonkdl_fk', 10)
         self.subsciber = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
-        
+        self.x_plot = []
+        self.y_plot = []
+        self.z_plot = []
     def listener_callback(self, msg):
         pose = self.solve_forward_kinematics(msg, 0.2)
         self.publisher.publish(pose)

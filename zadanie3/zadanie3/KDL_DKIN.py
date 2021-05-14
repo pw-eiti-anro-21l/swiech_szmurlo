@@ -6,7 +6,7 @@ from sensor_msgs.msg import JointState
 import PyKDL as kdl
 import transformations
 import json
-
+import matplotlib as plt
 class KDL_DKIN(Node):
 
     def __init__(self):
@@ -16,9 +16,14 @@ class KDL_DKIN(Node):
         self.subsciber = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
         self.i = 0
         self.chain = self.build_chain()
+        self.x_plot = []
+        self.y_plot = []
+        self.z_plot = []
+        self.fig, self.ax = plt.subplots()
         
     def listener_callback(self, msg):
         pose = self.solve_forward_kinematics(self.chain, msg, 0.1)
+
         self.publisher_.publish(pose)
 
     def get_xyz_rpy(self):
@@ -80,6 +85,9 @@ class KDL_DKIN(Node):
         pose.pose.orientation.z = frame_quaternion[2]
         pose.pose.orientation.w = frame_quaternion[3]
         pose.header.frame_id = "base_link"
+        self.x_plot.append(tool_position[0])
+        self.y_plot.append(tool_position[1])
+        self.z_plot.append(tool_position[2]+1)
         return pose
 
 def main(args=None):
