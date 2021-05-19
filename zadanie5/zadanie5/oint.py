@@ -8,6 +8,7 @@ from rclpy.qos import QoSProfile
 from time import sleep
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
+import json
 
 
 class OpInterpolationServer(Node):
@@ -20,10 +21,16 @@ class OpInterpolationServer(Node):
         self.pose_publisher = self.create_publisher(PoseStamped, '/pose_ikin', qos_profile)
         self.subsciber = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
         self.joint_pub = self.create_publisher(JointState, 'joint_interpolate', qos_profile)
-        self.tool_length = 0.1
+        self.tool_length = self.get_length()[3]
         self.initial_position = [0.5, -0.5, 1.5]
         self.in_action = False
         self.initial_joint_states = [-0.5, -0.5, -0.6]
+
+        self.position_dict = {}
+        self.x_array = []
+        self.y_array = []
+        self.z_array = []
+
     def listener_callback(self, msg):
         if not self.in_action:
             self.initial_joint_states[0] = msg.position[0]
@@ -56,6 +63,14 @@ class OpInterpolationServer(Node):
             response.server_feedback = "Interpolation completed"
         else:
             response.server_feedback = "Interpolation failed: unreachable points"
+
+        self.position_dict["x"] = self.x_array
+        self.position_dict["y"] = self.y_array
+        self.position_dict["z"] = self.z_array
+
+        with open ('/home/maciej/dev_ws/src/swiech_szmurlo/zadanie5/zadanie5/position_data.txt', 'w') as outfile:
+            json.dump(self.position_dict, outfile)
+
         return response
     
     def interpolate_rectangle(self, request, tool_length):
@@ -127,7 +142,12 @@ class OpInterpolationServer(Node):
                     id += 1
                 self.marker_publisher.publish(marker_array)
 
+                self.x_array.append(pose_x)
+                self.y_array.append(pose_y)
+                self.z_array.append(pose_z)
+
             self.initial_position = [pose_x, pose_y, pose_z]
+
         return True
 
     def interpolate_ellipse(self, request, tool_length):
@@ -176,7 +196,12 @@ class OpInterpolationServer(Node):
                 id += 1
             self.marker_publisher.publish(marker_array)
 
+            self.x_array.append(pose_x)
+            self.y_array.append(pose_y)
+            self.z_array.append(pose_z)
+
         self.initial_position = [pose_x , pose_y, pose_z]
+
         return True
 
 
@@ -223,6 +248,12 @@ class OpInterpolationServer(Node):
         pos1 = joint_1_state
         pos2 = joint_2_state
         pos3 = joint_3_state
+
+
+    def get_length(self):
+        with open("/home/maciej/dev_ws/src/swiech_szmurlo/zadanie5/zadanie5/dh_params.json", "r") as read_file:
+            data = json.load(read_file)
+        return data
         
 
 

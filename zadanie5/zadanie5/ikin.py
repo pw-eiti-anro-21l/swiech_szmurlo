@@ -8,7 +8,6 @@ import json
 import transformations
 import mathutils
 
-
 class IKIN(Node):
 
     def __init__(self):
@@ -16,9 +15,15 @@ class IKIN(Node):
         qos_profile = QoSProfile(depth=10)
         self.pose_subscriber = self.create_subscription(PoseStamped, '/pose_ikin', self.listener_callback, qos_profile)
         self.joint_publisher = self.create_publisher(JointState, '/joint_interpolate', qos_profile)
-        self.link_length = 1
-        self.tool_length = 0.1
-        self.base_length = 1
+        self.link1_length = self.get_length()[0]["d"]
+        self.link2_length = self.get_length()[1]["d"]
+        self.link3_length = self.get_length()[2]["d"]
+        # self.link1_length = 1
+        # self.link2_length = 1
+        # self.link3_length = 1
+        self.tool_length = self.get_length()[3]
+        self.base_length = self.get_length()[4]
+
     def listener_callback(self, msg):
         self.solve_inverse_kinematics(msg)
         
@@ -35,9 +40,9 @@ class IKIN(Node):
         # pose_y = -0.5
         # pose_z = 1.5
 
-        joint_base_1_trans = pose_z - self.link_length - self.base_length
-        joint_1_2_trans = -self.link_length - pose_y
-        joint_2_3_trans = pose_x - self.link_length - self.tool_length
+        joint_base_1_trans = pose_z - self.link1_length - self.base_length
+        joint_1_2_trans = -self.link2_length - pose_y
+        joint_2_3_trans = pose_x - self.link3_length - self.tool_length
 
         if joint_base_1_trans > 0 or joint_base_1_trans < -1:
             self.get_logger().info("joint_base_1 cannot move further")
@@ -48,6 +53,11 @@ class IKIN(Node):
         else:
             joint_states.position = [float(joint_base_1_trans), float(joint_1_2_trans), float(joint_2_3_trans)]
             self.joint_publisher.publish(joint_states)
+
+    def get_length(self):
+        with open("/home/maciej/dev_ws/src/swiech_szmurlo/zadanie5/zadanie5/dh_params.json", "r") as read_file:
+            data = json.load(read_file)
+        return data
 
 
 def main(args=None):
