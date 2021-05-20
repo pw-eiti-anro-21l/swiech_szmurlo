@@ -7,6 +7,7 @@ from rclpy.qos import QoSProfile
 import json
 import transformations
 import mathutils
+from ament_index_python.packages import get_package_share_directory
 
 class IKIN(Node):
 
@@ -18,16 +19,12 @@ class IKIN(Node):
         self.link1_length = self.get_length()[0]["d"]
         self.link2_length = self.get_length()[1]["d"]
         self.link3_length = self.get_length()[2]["d"]
-        # self.link1_length = 1
-        # self.link2_length = 1
-        # self.link3_length = 1
-        self.tool_length = self.get_length()[3]
-        self.base_length = self.get_length()[4]
+        self.tool_length = self.get_length()[3]["tool_length"]
+        self.base_length = self.get_length()[3]["base_length"]
 
     def listener_callback(self, msg):
         self.solve_inverse_kinematics(msg)
         
-
     def solve_inverse_kinematics (self, pose):
         joint_states = JointState()
         joint_states.name = ['joint_base_1', 'joint_1_2', 'joint_2_3']
@@ -35,10 +32,6 @@ class IKIN(Node):
         pose_x = pose.pose.position.x
         pose_y = pose.pose.position.y
         pose_z = pose.pose.position.z
-
-        # pose_x = 0.5
-        # pose_y = -0.5
-        # pose_z = 1.5
 
         joint_base_1_trans = pose_z - self.link1_length - self.base_length
         joint_1_2_trans = -self.link2_length - pose_y
@@ -55,7 +48,8 @@ class IKIN(Node):
             self.joint_publisher.publish(joint_states)
 
     def get_length(self):
-        with open("/home/maciej/dev_ws/src/swiech_szmurlo/zadanie5/zadanie5/dh_params.json", "r") as read_file:
+        path = get_package_share_directory('zadanie5') + "/dh_params.json"
+        with open(path, "r") as read_file:
             data = json.load(read_file)
         return data
 

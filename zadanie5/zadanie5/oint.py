@@ -9,8 +9,7 @@ from time import sleep
 from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 import json
-
-
+from ament_index_python.packages import get_package_share_directory
 class OpInterpolationServer(Node):
 
     def __init__(self):
@@ -21,15 +20,16 @@ class OpInterpolationServer(Node):
         self.pose_publisher = self.create_publisher(PoseStamped, '/pose_ikin', qos_profile)
         self.subsciber = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
         self.joint_pub = self.create_publisher(JointState, 'joint_interpolate', qos_profile)
-        self.tool_length = self.get_length()[3]
+        self.tool_length = self.get_length()[3]['tool_length']
         self.initial_position = [0.5, -0.5, 1.5]
         self.in_action = False
         self.initial_joint_states = [-0.5, -0.5, -0.6]
-
+        # self.get_logger().info(get_package_share_directory('zadanie5') + "/dh_params.json")
         self.position_dict = {}
         self.x_array = []
         self.y_array = []
         self.z_array = []
+        # self.get_logger().info(str(self.get_length()[3]['tool_length']))
 
     def listener_callback(self, msg):
         if not self.in_action:
@@ -68,8 +68,8 @@ class OpInterpolationServer(Node):
         self.position_dict["y"] = self.y_array
         self.position_dict["z"] = self.z_array
 
-        with open ('/home/maciej/dev_ws/src/swiech_szmurlo/zadanie5/zadanie5/position_data.txt', 'w') as outfile:
-            json.dump(self.position_dict, outfile)
+        # with open ('/home/maciej/dev_ws/src/swiech_szmurlo/zadanie5/zadanie5/position_data.txt', 'w') as outfile:
+        #     json.dump(self.position_dict, outfile)
 
         return response
     
@@ -251,7 +251,8 @@ class OpInterpolationServer(Node):
 
 
     def get_length(self):
-        with open("/home/maciej/dev_ws/src/swiech_szmurlo/zadanie5/zadanie5/dh_params.json", "r") as read_file:
+        path = get_package_share_directory('zadanie5') + "/dh_params.json"
+        with open(path, "r") as read_file:
             data = json.load(read_file)
         return data
         

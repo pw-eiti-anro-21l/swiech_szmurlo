@@ -17,6 +17,8 @@
         "d": 1,
         "theta": 1.57
     },
-    0.1,
-    1
+    {
+    	"tool_length": 0.1,
+    	"base_length": 1
+    }
 ]
