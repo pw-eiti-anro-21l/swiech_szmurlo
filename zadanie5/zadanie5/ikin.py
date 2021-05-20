@@ -37,11 +37,11 @@ class IKIN(Node):
         joint_1_2_trans = -self.link2_length - pose_y
         joint_2_3_trans = pose_x - self.link3_length - self.tool_length
 
-        if joint_base_1_trans > 0 or joint_base_1_trans < -1:
+        if joint_base_1_trans > 0 or joint_base_1_trans < -1*self.link1_length:
             self.get_logger().info("joint_base_1 cannot move further")
-        elif joint_1_2_trans > 0 or joint_1_2_trans < -1:
+        elif joint_1_2_trans > 0 or joint_1_2_trans < -1*self.link2_length:
             self.get_logger().info("joint_1_2 cannot move further")
-        elif joint_1_2_trans > 0 or joint_1_2_trans < -1:
+        elif joint_1_2_trans > 0 or joint_1_2_trans < -1*self.link3_length:
             self.get_logger().info("joint_2_3 cannot move further")
         else:
             joint_states.position = [float(joint_base_1_trans), float(joint_1_2_trans), float(joint_2_3_trans)]

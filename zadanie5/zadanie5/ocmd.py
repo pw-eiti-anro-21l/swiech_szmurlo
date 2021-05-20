@@ -23,6 +23,8 @@ class oint(Node):
             self.future = self.client.call_async(self.req)
         except ValueError:
             self.get_logger().info("Incorrect parameters")
+        except IndexError:
+            self.get_logger().info("Not enough parameters")
 
 
 def main(args=None):

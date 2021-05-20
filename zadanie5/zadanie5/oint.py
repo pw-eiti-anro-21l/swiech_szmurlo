@@ -21,15 +21,17 @@ class OpInterpolationServer(Node):
         self.subsciber = self.create_subscription(JointState, 'joint_states', self.listener_callback, 10)
         self.joint_pub = self.create_publisher(JointState, 'joint_interpolate', qos_profile)
         self.tool_length = self.get_length()[3]['tool_length']
+        self.base_length = self.get_length()[3]["base_length"]
+        self.link1_length = self.get_length()[0]["d"]
+        self.link2_length = self.get_length()[1]["d"]
+        self.link3_length = self.get_length()[2]["d"]
         self.initial_position = [0.5, -0.5, 1.5]
         self.in_action = False
         self.initial_joint_states = [-0.5, -0.5, -0.6]
-        # self.get_logger().info(get_package_share_directory('zadanie5') + "/dh_params.json")
         self.position_dict = {}
         self.x_array = []
         self.y_array = []
         self.z_array = []
-        # self.get_logger().info(str(self.get_length()[3]['tool_length']))
 
     def listener_callback(self, msg):
         if not self.in_action:
@@ -43,9 +45,9 @@ class OpInterpolationServer(Node):
         if request.a <= 0 or request.b <= 0:
             response.server_feedback = "Length 'a' and height 'b' cannot be 0 or negative"
             return response
-        if request.a > 0.5 or request.b > 0.5:
-            response.server_feedback = "Length 'a' and height 'b' cannot be greater than 0.5"
-            return response
+        # if request.a > 0.5 or request.b > 1.2:
+        #     response.server_feedback = "Length 'a' and height 'b' cannot be greater than 0.5"
+        #     return response
         if request.method != "rectangle" and request.method != "ellipse":
             response.server_feedback = "Bad method. Choose 'rectangle' or 'ellipse'"
             return response
@@ -69,7 +71,7 @@ class OpInterpolationServer(Node):
         self.position_dict["z"] = self.z_array
 
         # with open ('/home/maciej/dev_ws/src/swiech_szmurlo/zadanie5/zadanie5/position_data.txt', 'w') as outfile:
-        #     json.dump(self.position_dict, outfile)
+        #     json.dump(self.position_dict, outfile) to do wykresow
 
         return response
     
@@ -119,10 +121,10 @@ class OpInterpolationServer(Node):
                 # pose_x = initial_position[0] + (x_goal - initial_position[0])/steps*step
                 pose_y = initial_position[1] + (y_goal - initial_position[1])/steps*step
                 pose_z = initial_position[2] + (z_goal - initial_position[2])/steps*step
-                if pose_y > 0 or pose_y < -1:
+                if pose_y > 0 or pose_y < -1*self.link1_length:
                     self.get_logger().info("Point is unreachable")
                     return False
-                if pose_z > 2 or pose_z < 1:
+                if pose_z > self.base_length+ self.link1_length or pose_z < self.base_length:
                     self.get_logger().info("Point is unreachable")
                     return False
                 pose.header.frame_id = "base_link"
